@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+    <button type="button" id="ajax">PREMI PER AJAX</button>
+    <div id="contents">
+
+    </div>
+</body>
+<script type="text/javascript">
+	var apiUrl = "api/product";
+    
+    var button = document.getElementById("ajax");
+	button.addEventListener("click", () => {
+		fetch(apiUrl, {
+			method: 'GET',
+			headers: new Headers({
+				'Content-Type': 'application/json',
+				'Accept': 'text/html',
+				//'Accept': 'application/json',
+				'X-Auth-Token': localStorage.getItem('token')
+			})
+		})
+		//.then(response => response.json())
+		.then(response => response.text())
+		.then(response => {
+            var list = document.getElementById("contents");
+            console.log(response);
+            list.innerHTML=response;
+		})
+		.catch(error => {console.log("ERRORE: ", error)});
+	});
+</script>
+</html>
