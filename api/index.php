@@ -3,9 +3,12 @@
 require_once('./config.php');
 
 function __autoload($class){
-    $path = LIBS. strtolower($class) . '.php';
+    $path = CORE . strtolower($class) . '.php';
     if(!(include_once($path)) || !(class_exists($class))){
-        Response::error("No function found", 404);
+        $path = ROUTES . strtolower($class) . '.php';
+        if(!(include_once($path)) || !(class_exists($class))){
+            Response::error("No function found", 404);
+        }
     }
 
 }

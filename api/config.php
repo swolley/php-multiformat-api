@@ -11,5 +11,6 @@ define("DB_USER", "root");
 define("DB_PASS", "test");
 
 //App
-define("LIBS", __DIR__ . "/libs/");
+define("CORE", __DIR__ . "/core/");
+define("ROUTES", __DIR__ . "/routes/");
 define("WEB", __DIR__ . "/../web/");
