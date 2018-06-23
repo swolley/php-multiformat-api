@@ -12,6 +12,6 @@ api is modular, all requests can be implemented in classes inside the 'libs' dir
 ## frontend
 index.html is only a test page.
 
-## TODO
+## todos
 1) project is still in progress
 2) handle login. Now I set token using localStorage.setItem('token', 'string') by browser console.
