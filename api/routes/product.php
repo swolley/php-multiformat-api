@@ -13,7 +13,7 @@ class Product{
         ];
     }
 
-    public function post($params=array()){
+    public function put($params=array()){
         if(!isset($params['name'])){
             return "Parameter missing";
         }

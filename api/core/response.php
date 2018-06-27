@@ -2,7 +2,7 @@
 
 class Response{
     public static function send($msg, $response = 'OK', $status = 200){
-        header('Content-Type: application/json');
+        header('Content-Type: application/json', true, $status);
         exit(json_encode(array_merge([
                 'response' => $response,
                 'status' => $status,

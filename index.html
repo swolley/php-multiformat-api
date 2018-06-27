@@ -1,36 +1,134 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-	<title></title>
-</head>
-<body>
-    <button type="button" id="ajax">PREMI PER AJAX</button>
-    <div id="contents">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+
+    <title>Test</title>
+</head>
+
+<body>
+    <div class="container">
+        <!-- LOGIN -->
+        <div id="loginBlock">
+            <form class="px-4 py-3">
+                <div class="form-group">
+                    <label for="exampleDropdownFormEmail1">Email address</label>
+                    <input type="email" class="form-control" id="email" placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="exampleDropdownFormPassword1">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                </div>
+                <button type="button" id="doLogin" class="btn btn-primary">Sign in</button>
+            </form>
+        </div>
+        
+        <!-- PAGE -->
+        <div id="contentBlock" style="display: none">
+            <!-- NAVBAR -->
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <li class="nav-item">
+                    <a class="nav-link" id="ajax">Prodotti</a>
+                </li>
+            </nav>
+            
+            <!-- CONTENTS -->
+            <div class="row">
+                <div id="ajaxContents">
+                
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 </body>
 <script type="text/javascript">
-	var apiUrl = "api/product";
-    
-    var button = document.getElementById("ajax");
-	button.addEventListener("click", () => {
-		fetch(apiUrl, {
-			method: 'GET',
-			headers: new Headers({
-				'Content-Type': 'application/json',
-				'Accept': 'text/html',
-				//'Accept': 'application/json',
-				'X-Auth-Token': localStorage.getItem('token')
-			})
-		})
-		//.then(response => response.json())
-		.then(response => response.text())
-		.then(response => {
-            var list = document.getElementById("contents");
-            console.log(response);
-            list.innerHTML=response;
-		})
-		.catch(error => {console.log("ERRORE: ", error)});
-	});
+    var apiUrl = {
+        product: "api/product",
+        login: "api/user"
+    };
+
+    var classname = document.getElementsByClassName("nav-link");
+    Array.from(classname).forEach((element) => {
+            element.addEventListener('click', (event) => {
+            console.log(event);
+
+            /*
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                    'Accept': 'text/html',
+                    //'Accept': 'application/json',
+                    'X-Auth-Token': localStorage.getItem('token')
+                })
+            })
+                //.then(response => response.json())
+                .then(response => response.text())
+                .then(response => {
+                    var list = document.getElementById("ajaxContents");
+                    //console.log(response);
+                    list.innerHTML = response;
+                })
+                .catch(error => { console.log("ERRORE: ", error) });
+            */
+        });
+    });
+    /*var ajax = document.getElementsByClassName("ajax").addEventListener("click", (event) => {
+        cnosole.log(event);
+
+
+        fetch(apiUrl, {
+            method: 'GET',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                'Accept': 'text/html',
+                //'Accept': 'application/json',
+                'X-Auth-Token': localStorage.getItem('token')
+            })
+        })
+            //.then(response => response.json())
+            .then(response => response.text())
+            .then(response => {
+                var list = document.getElementById("ajaxContents");
+                //console.log(response);
+                list.innerHTML = response;
+            })
+            .catch(error => { console.log("ERRORE: ", error) });
+    });*/
+
+    var login = document.querySelector("#doLogin").addEventListener("click", ()=>{
+        fetch(apiUrl.login, {
+            method: 'POST',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                //'Accept': 'application/json',
+                //'X-Auth-Token': localStorage.getItem('token')
+            }),
+            body: {
+                email: document.querySelector("#email").value,
+                password: document.querySelector("#password").value
+            }
+        })
+            .then(response => response.json())
+            //.then(response => response.text())
+            .then(response => {
+                localStorage.setItem("token", "ciaociaociao");
+                document.querySelector("#loginBlock").style.display="none";
+                document.querySelector("#contentBlock").style.display = "block";
+            })
+            .catch(error => { console.log("ERRORE: ", error) });
+    });
 </script>
 </html>

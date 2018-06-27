@@ -1,7 +1,7 @@
 <?php
 
-class User {
-    private $db;
+class Auth {
+    protected $db;
 
     public function __construct(){
         $this->db = new Database();
@@ -11,7 +11,7 @@ class User {
         return isset($userData['token'], $userData['request'], $userData['method']) ? $this->canDoRequest($userData) : false;
     }
 
-    private function canDoRequest($userData){
+    protected function canDoRequest($userData){
         $user = $this->getFromToken($userData['token']);
         if(count($user) > 0){
             $permission = $userData['method']."_".$userData['request'];
@@ -19,9 +19,15 @@ class User {
         }
     }
 
-    private function getFromToken($token){
+    protected function getFromToken($token){
         return $this->db->select("SELECT u.* FROM users u INNER JOIN user_tokens t ON u.id=t.userId WHERE t.token=:token", [
             "token" => $token
         ]);
+    }
+
+    protected function createToken($userId){
+        $hashedId = md5($userID);
+        $created = md5(microtime());
+        return "${hashedId}.${created}";
     }
 }
