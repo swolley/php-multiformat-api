@@ -1,6 +1,7 @@
 <?php
 //errors and debug
-error_reporting(/*E_ALL*/null);
+define("DEBUG_MODE", true);
+error_reporting(/*E_ALL*/NULL);
 ini_set('display_errors', '0');
 
 //Database

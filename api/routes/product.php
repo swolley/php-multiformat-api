@@ -9,7 +9,9 @@ class Product{
 
     public function get($params=array()){
         return [
-            'data' => $this->db->select("SELECT * from products" . (isset($params['id']) ? " WHERE :id=".$params['id'] : ""))
+            'data' => isset($params['id']) ? 
+                $this->db->procedure("GetProduct", ['id' => $params['id']]) : 
+                $this->db->procedure("GetAllProducts")
         ];
     }
 

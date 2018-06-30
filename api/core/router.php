@@ -3,21 +3,24 @@
 
 class Router{
     public function __construct(/*$method, $request, $token, $format = 'application/json', $parameters = []*/){
-        $this->getHeaders();
+        $request = $this->getHeaders();
+        $this->handleRoute($request);
     }
 
     private function getHeaders(){
         $headers = apache_request_headers();
-        $token = isset($headers['x-auth-token']) ? $headers['x-auth-token'] : null;
-        $format = isset($headers['accept']) ? $headers['accept'] : null;
-        $method = strtolower($_SERVER['REQUEST_METHOD']);
-        $request = explode("/", $_SERVER['REQUEST_URI']);
-        $request = end($request);
-        $parameters = json_decode(file_get_contents('php://input'), true);
-        $this->handleRoute($method, $request, $token, $format, $parameters);
+        $requestUri = explode("/", $_SERVER['REQUEST_URI']);
+        return [
+            "method" => strtolower($_SERVER['REQUEST_METHOD']),
+            "request" => end($requestUri),
+            "token" => isset($headers['x-auth-token']) ? $headers['x-auth-token'] : null,
+            "format" => isset($headers['accept']) ? $headers['accept'] : null,
+            "parameters" => json_decode(file_get_contents('php://input'), true)
+        ];
     }
 
-    private function handleRoute($method, $request, $token, $format, $parameters){
+    private function handleRoute($requestArray){
+        extract($requestArray);
         //check user data and permission level
         if($request !== "user" && $method !== "post" ){
             if(!((new User())->authorizeRequest(['token' => $token, 'request' => $request, 'method' => $method]))){
@@ -39,7 +42,6 @@ class Router{
         $result = $controller->$method($parameters);
 
         //make response
-
         return isset($result['data']) ? 
             ($format === 'text/html' ? Response::render($result['data'], "${method}_${request}") : Response::send($result)) : 
             Response::error($result); 

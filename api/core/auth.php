@@ -20,13 +20,13 @@ class Auth {
     }
 
     protected function getFromToken($token){
-        return $this->db->select("SELECT u.* FROM users u INNER JOIN user_tokens t ON u.id=t.userId WHERE t.token=:token", [
+        return $this->db->select("GetUserByToken", [
             "token" => $token
         ]);
     }
 
-    protected function createToken($userId){
-        $hashedId = md5($userID);
+    protected static function createToken($userId){
+        $hashedId = md5($userId);
         $created = md5(microtime());
         return "${hashedId}.${created}";
     }

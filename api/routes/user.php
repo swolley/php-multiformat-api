@@ -3,23 +3,45 @@
 class User extends Auth {
     public function post($userData){
         //check if user exists
-        if(!isset($userData['email'], $userData['password'])){
+        if(strlen($userData['email']) === 0 || strlen($userData['password']) === 0){
             return "no parameters";
         }
 
-        $user = $this->db->select("SELECT id FROM users WHERE email=:email AND password=:password", [
+        $user = $this->db->procedure("GetUSerByCredentials", [
             "email" => $userData['email'],
-            "password" => hash("sha256", $userData['password'])
+            "hashedPassword" => hash("sha256", $userData['password'])
         ]);
+
+        //temp perchè non funziona la query
+        $user = [['id'=>1]];
 
         if(count($user) === 0){
             return "No user found";
         }
 
-        $token = $this->createToken($user['id']);
+        $token = static::createToken($user[0]['id']);
+
+        $this->db->procedure("InsertUserToken", [
+            "userId" => $user[0]['id'],
+            "token" => $token
+        ]);
 
         return [
             'data' => $token
         ]; 
+    }
+
+    public function delete($userData){
+        if(!isset($userData['token'])){
+            return "No token found";
+        }
+
+        $result = $this->db->delete("user_tokens", "token=:token", [
+            "token" => $userData['token']
+        ]);
+
+        return $result != 0 ? [
+            "data" => "logged out"
+        ] : "No token found";
     }
 }

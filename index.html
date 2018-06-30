@@ -1,11 +1,14 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css" />
 
     <title>Test</title>
 </head>
@@ -16,30 +19,42 @@
         <div id="loginBlock">
             <form class="px-4 py-3">
                 <div class="form-group">
-                    <label for="exampleDropdownFormEmail1">Email address</label>
+                    <label for="email">Email address</label>
                     <input type="email" class="form-control" id="email" placeholder="email@example.com">
                 </div>
                 <div class="form-group">
-                    <label for="exampleDropdownFormPassword1">Password</label>
+                    <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" placeholder="Password">
                 </div>
-                <button type="button" id="doLogin" class="btn btn-primary">Sign in</button>
+                <button type="button" id="doLogin" class="btn btn-primary"><span class="material-icons">vpn_key</span> Sign in</button>
             </form>
         </div>
-        
+
         <!-- PAGE -->
         <div id="contentBlock" style="display: none">
             <!-- NAVBAR -->
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <li class="nav-item">
-                    <a class="nav-link" id="ajax">Prodotti</a>
-                </li>
+                <span class="navbar-brand">Console</span>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link menu" href="#" id="product">Prodotti</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="doLogout"><span class="material-icons">meeting_room</span> Logout</a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
-            
+
             <!-- CONTENTS -->
             <div class="row">
                 <div id="ajaxContents">
-                
+
                 </div>
             </div>
         </div>
@@ -51,84 +66,129 @@
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
 </body>
 <script type="text/javascript">
-    var apiUrl = {
+    const apiUrl = {
         product: "api/product",
-        login: "api/user"
+        user: "api/user",
     };
 
-    var classname = document.getElementsByClassName("nav-link");
-    Array.from(classname).forEach((element) => {
-            element.addEventListener('click', (event) => {
-            console.log(event);
+    $(window).on("load", () => {
+        if (sessionStorage.getItem("token") != null) {
+            toggleLayers();
+        }
+    });
 
-            /*
-            fetch(apiUrl, {
-                method: 'GET',
-                headers: new Headers({
-                    'Content-Type': 'application/json',
-                    'Accept': 'text/html',
-                    //'Accept': 'application/json',
-                    'X-Auth-Token': localStorage.getItem('token')
-                })
-            })
-                //.then(response => response.json())
-                .then(response => response.text())
-                .then(response => {
-                    var list = document.getElementById("ajaxContents");
-                    //console.log(response);
-                    list.innerHTML = response;
-                })
-                .catch(error => { console.log("ERRORE: ", error) });
-            */
+    toggleLayers = () => {
+        $("#loginBlock").toggle();
+        $("#contentBlock").toggle();
+    }
+
+    var classname = document.getElementsByClassName("menu");
+    Array.from(classname).forEach((element) => {
+        element.addEventListener('click', (event) => {
+            updateContents(event.srcElement.id);
         });
     });
-    /*var ajax = document.getElementsByClassName("ajax").addEventListener("click", (event) => {
-        cnosole.log(event);
 
+    //$(".menu").click(()=>updateContents(this.id));
 
-        fetch(apiUrl, {
+    updateContents = (id) => {
+        fetch(apiUrl[id], {
             method: 'GET',
             headers: new Headers({
                 'Content-Type': 'application/json',
                 'Accept': 'text/html',
                 //'Accept': 'application/json',
-                'X-Auth-Token': localStorage.getItem('token')
+                'X-Auth-Token': sessionStorage.getItem('token')
             })
         })
-            //.then(response => response.json())
-            .then(response => response.text())
-            .then(response => {
-                var list = document.getElementById("ajaxContents");
-                //console.log(response);
-                list.innerHTML = response;
-            })
+            //.then(response => response.headers.get('Content-Type'))
+            .then(response => response.headers.get('Content-Type') === 'text/html;charset=UTF-8' ? parseHtml(response) : parseJson(response))
             .catch(error => { console.log("ERRORE: ", error) });
-    });*/
+    };
 
-    var login = document.querySelector("#doLogin").addEventListener("click", ()=>{
-        fetch(apiUrl.login, {
+    parseHtml = async (response) => {
+        $("#ajaxContents").html(await response.text());
+    }
+
+    parseJson = async (response) => {
+        var parsedResponse = await response.json();
+        if(parsedResponse.response === 'OK'){
+            var tableHead = "<tr><td>" + Object.keys(parsedResponse.data[0]).join("</td><td>") + "</td></tr>";
+            var tableBody = parsedResponse.data.reduce((body, cur) => {
+                var values = Object.values(cur);
+                var sum = values.reduce((row, item) => {
+                    switch(!isNaN(item)){
+                        case true: 
+                            return row + `<td class="text-right">${item}</td>`;
+                            break;
+                        default:
+                            return row + `<td>${item}</td>`;
+                            break;
+                    }
+                }, "");
+                return body + "<tr>" + sum + "</tr>";
+            }, "");
+            $("#ajaxContents").html(`<table id="table" class="table"><thead>${tableHead}</thead><tbody>${tableBody}</tbody></table>`);
+        }
+        else {
+            console.log(response);
+        }
+    }
+
+    var loginAction = document.querySelector("#doLogin").addEventListener("click", () => {
+        fetch(apiUrl.user, {
             method: 'POST',
             headers: new Headers({
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 //'Accept': 'application/json',
-                //'X-Auth-Token': localStorage.getItem('token')
+                //'X-Auth-Token': sessionStorage.getItem('token')
             }),
-            body: {
+            body: JSON.stringify({
                 email: document.querySelector("#email").value,
                 password: document.querySelector("#password").value
-            }
+            })
         })
             .then(response => response.json())
             //.then(response => response.text())
             .then(response => {
-                localStorage.setItem("token", "ciaociaociao");
-                document.querySelector("#loginBlock").style.display="none";
-                document.querySelector("#contentBlock").style.display = "block";
+                if (response.response === 'OK') {
+                    sessionStorage.setItem("token", response.data);
+                    console.log("Correctly logged in with token: ", response.data);
+                    toggleLayers();
+                }
             })
             .catch(error => { console.log("ERRORE: ", error) });
     });
+
+    var logoutAction = document.querySelector("#doLogout").addEventListener("click", () => {
+            var token = sessionStorage.getItem('token');
+            fetch(apiUrl.user, {
+                method: 'DELETE',
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    //'Accept': 'application/json',
+                    'X-Auth-Token': token
+                }),
+                body: JSON.stringify({
+                    token
+                })
+            })
+                .then(response => response.json())
+                //.then(response => response.text())
+                .then(response => {
+                    if (response.response === 'OK') {
+                        console.log("Correctly logged out");
+                        sessionStorage.removeItem("token");
+                        toggleLayers();
+                    }
+                })
+                .catch(error => { console.log("ERRORE: ", error) });
+        });
 </script>
+
 </html>
