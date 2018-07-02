@@ -13,7 +13,7 @@ class Database extends PDO {
             ksort($params);
             $st = $this->prepare($query);
             foreach($params as $key=>$value){
-                $st->bindParam("$key", $value);
+                $st->bindValue("$key", $value);
             }
             $st->execute();
 
@@ -32,7 +32,7 @@ class Database extends PDO {
             $this->beginTransaction();
             $st = $this->prepare("INSERT INTO $table ($keys) VALUES ($values)");
             foreach($params as $key=>$value){
-                $st->bindParam(":$key", $value);
+                $st->bindValue(":$key", $value);
             }
             $st->execute();
             $insertedId = $this->lastInsertId();
@@ -49,12 +49,13 @@ class Database extends PDO {
             ksort($params);
             $values = "";
             foreach($params as $key=>$value){
-                $values .= $key . "=:$keys";
+                $values .= "`$key`=:$keys";
             }
+            $fieldDetails = rtrim($fieldDetails, ',');
 
             $st = $this->prepare("UPDATE $table SET $values WHERE $where");
             foreach($params as $key=>$value){
-                $st->bindParam(":$key", $value);
+                $st->bindValue(":$key", $value);
             }
 
             return $st->execute();
@@ -68,7 +69,7 @@ class Database extends PDO {
             ksort($params);
             $st = $this->prepare("DELETE FROM $table WHERE $where");
             foreach($params as $key=>$value){
-                $st->bindParam("$key", $value);
+                $st->bindValue("$key", $value);
             }
             
             return $st->execute();
@@ -80,17 +81,15 @@ class Database extends PDO {
     public function procedure($name, $params = [], $fetchMode = PDO::FETCH_ASSOC){
         try{
             //ksort($params);
-            $keys = [];
+            $procedureParams = "";
             foreach ($params as $key => $value) {
-                array_push($keys, $key);
+                $procedureParams .= ":$key,";
             }
+            $procedureParams = rtrim($procedureParams, ',');
 
-            $keys = ":" . implode(",:", $keys);
-            //$values = ":" . implode(",:", array_keys($params));
-
-            $st = $this->prepare("CALL $name($keys)");
+            $st = $this->prepare("CALL $name($procedureParams)");
             foreach($params as $key=>$value){
-                $st->bindParam(":$key", $value);
+                $st->bindValue(":$key", $value);
             }
             $st->execute();
             

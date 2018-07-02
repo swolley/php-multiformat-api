@@ -7,7 +7,7 @@ class User extends Auth {
             return "no parameters";
         }
 
-        $user = $this->db->procedure("GetUSerByCredentials", [
+        $user = $this->db->procedure("GetUserByCredentials", [
             "email" => $userData['email'],
             "hashedPassword" => hash("sha256", $userData['password'])
         ]);
@@ -21,13 +21,13 @@ class User extends Auth {
 
         $token = static::createToken($user[0]['id']);
 
-        $this->db->procedure("InsertUserToken", [
+        $result = $this->db->procedure("InsertUserToken", [
             "userId" => $user[0]['id'],
             "token" => $token
         ]);
 
         return [
-            'data' => $token
+            'data' => $result['token']
         ]; 
     }
 

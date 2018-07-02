@@ -1,8 +1,9 @@
 <?php
 //errors and debug
 define("DEBUG_MODE", true);
-error_reporting(/*E_ALL*/NULL);
-ini_set('display_errors', '0');
+
+error_reporting(DEBUG_MODE ? E_ALL : NULL);
+ini_set('display_errors', DEBUG_MODE ? 1 : 0);
 
 //Database
 define("DB_TYPE", "mysql");
