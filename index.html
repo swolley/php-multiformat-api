@@ -15,7 +15,7 @@
 
 <body>
     <div class="container">
-        <!-- LOGIN -->
+        <!-- ////////////////////// LOGIN ///////////////////////// -->
         <div id="loginBlock">
             <form class="px-4 py-3">
                 <div class="form-group">
@@ -30,7 +30,7 @@
             </form>
         </div>
 
-        <!-- PAGE -->
+        <!-- ///////////////////////// PAGE //////////////////////// -->
         <div id="contentBlock" style="display: none">
             <!-- NAVBAR -->
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -69,11 +69,14 @@
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
 </body>
 <script type="text/javascript">
+    //region PATHS
     const apiUrl = {
         product: "api/product",
         user: "api/user",
     };
+    //#endregion
 
+    //#region PAGE
     $(window).on("load", () => {
         if (sessionStorage.getItem("token") != null) {
             toggleLayers();
@@ -88,26 +91,11 @@
     var classname = document.getElementsByClassName("menu");
     Array.from(classname).forEach((element) => {
         element.addEventListener('click', (event) => {
-            updateContents(event.srcElement.id);
+            get(event.srcElement.id);
         });
     });
 
-    //$(".menu").click(()=>updateContents(this.id));
-
-    updateContents = (id) => {
-        fetch(apiUrl[id], {
-            method: 'GET',
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                'Accept': 'text/html',
-                //'Accept': 'application/json',
-                'X-Auth-Token': sessionStorage.getItem('token')
-            })
-        })
-            //.then(response => response.headers.get('Content-Type'))
-            .then(response => response.headers.get('Content-Type') === 'text/html;charset=UTF-8' ? parseHtml(response) : parseJson(response))
-            .catch(error => { console.log("ERRORE: ", error) });
-    };
+    //$(".menu").click(()=>get(this.id));
 
     parseHtml = async (response) => {
         $("#ajaxContents").html(await response.text());
@@ -116,6 +104,8 @@
     parseJson = async (response) => {
         var parsedResponse = await response.json();
         if(parsedResponse.response === 'OK'){
+
+            /*
             var tableHead = "<tr><td>" + Object.keys(parsedResponse.data[0]).join("</td><td>") + "</td></tr>";
             var tableBody = parsedResponse.data.reduce((body, cur) => {
                 var values = Object.values(cur);
@@ -131,13 +121,41 @@
                 }, "");
                 return body + "<tr>" + sum + "</tr>";
             }, "");
-            $("#ajaxContents").html(`<table id="table" class="table"><thead>${tableHead}</thead><tbody>${tableBody}</tbody></table>`);
+            //$("#ajaxContents").html(`<table id="table" class="table"><thead>${tableHead}</thead><tbody>${tableBody}</tbody></table>`);
+            */
+            
+            var headers = Object.keys(parsedResponse.data[0]);
+            $("#ajaxContents").html(`<table id="table" class="table" width="100%";></table>`);
+            var table = $("#table").dataTable({
+                headers,
+                data: response.data,
+                rowId: response.rowId
+            });
         }
         else {
             console.log(response);
         }
     }
+    //#endregion
 
+    //#region CRUD
+    get = (id) => {
+            fetch(apiUrl[id], {
+                method: 'GET',
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                    //'Accept': 'text/html',
+                    'Accept': 'application/json',
+                    'X-Auth-Token': sessionStorage.getItem('token')
+                })
+            })
+                //.then(response => response.headers.get('Content-Type'))
+                .then(response => response.headers.get('Content-Type') === 'text/html;charset=UTF-8' ? parseHtml(response) : parseJson(response))
+                .catch(error => { console.log("ERRORE: ", error) });
+        };
+    //#endregion
+
+    //#region AUTH
     var loginAction = document.querySelector("#doLogin").addEventListener("click", () => {
         fetch(apiUrl.user, {
             method: 'POST',
@@ -189,6 +207,7 @@
                 })
                 .catch(error => { console.log("ERRORE: ", error) });
         });
+    //#endregion
 </script>
 
 </html>
