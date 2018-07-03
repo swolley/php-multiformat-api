@@ -20,7 +20,7 @@ class Auth {
     }
 
     protected function getFromToken($token){
-        return $this->db->select("GetUserByToken", [
+        return $this->db->procedure("GetUserByToken", [
             "token" => $token
         ]);
     }

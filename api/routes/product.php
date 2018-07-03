@@ -9,7 +9,7 @@ class Product{
 
     public function get($params=array()){
         return [
-            'rowId' => $this->db->procedure("GetPrimaryKeyName", ['table' => "products"])[0]['Column_name'],
+            'rowId' => 'id',
             'data' => isset($params['id']) ? 
                 $this->db->procedure("GetProduct", ['id' => $params['id']]) : 
                 $this->db->procedure("GetAllProducts")

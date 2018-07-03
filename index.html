@@ -13,11 +13,11 @@
     <title>Test</title>
 </head>
 
-<body>
+<body class="fixed-nav">
     <div class="container">
         <!-- ////////////////////// LOGIN ///////////////////////// -->
         <div id="loginBlock">
-            <form class="px-4 py-3">
+            <form class="px-4 py-3" id="loginForm">
                 <div class="form-group">
                     <label for="email">Email address</label>
                     <input type="email" class="form-control" id="email" placeholder="email@example.com">
@@ -33,30 +33,34 @@
         <!-- ///////////////////////// PAGE //////////////////////// -->
         <div id="contentBlock" style="display: none">
             <!-- NAVBAR -->
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <span class="navbar-brand">Console</span>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link menu" href="#" id="product">Prodotti</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" id="doLogout"><span class="material-icons">meeting_room</span> Logout</a>
-                        </li>
-                    </ul>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+                <div class="container">
+                    <span class="navbar-brand"><span class="material-icons">dashboard</span> Console</span>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link menu" href="#" id="product"><span class="material-icons">shopping_cart</span> Products</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link menu" href="#" id="user"><span class="material-icons">people</span> Users</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" id="doLogout"><span class="material-icons">meeting_room</span> Logout</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
-
-            <!-- CONTENTS -->
-            <div class="row">
+            <section style="margin-top: 100px;">
+                <!-- CONTENTS -->
                 <div id="ajaxContents">
-
+                    <!-- dynamically filled -->
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 
@@ -74,6 +78,10 @@
         product: "api/product",
         user: "api/user",
     };
+
+    let currentController = "product";
+
+    let table;
     //#endregion
 
     //#region PAGE
@@ -88,108 +96,119 @@
         $("#contentBlock").toggle();
     }
 
-    var classname = document.getElementsByClassName("menu");
-    Array.from(classname).forEach((element) => {
-        element.addEventListener('click', (event) => {
-            get(event.srcElement.id);
-        });
-    });
-
-    //$(".menu").click(()=>get(this.id));
-
     parseHtml = async (response) => {
         $("#ajaxContents").html(await response.text());
     }
 
     parseJson = async (response) => {
-        var parsedResponse = await response.json();
-        if(parsedResponse.response === 'OK'){
+        $("#ajaxContents").html(
+            `<div>
+                <button type="button" class="btn btn-primary" id="deleteBtn"><span class="material-icons">delete</span> Delete</button>
+            </div>
+            <table id="table" class="table-responsive" style"width:100%">
+            </table>`);
 
-            /*
-            var tableHead = "<tr><td>" + Object.keys(parsedResponse.data[0]).join("</td><td>") + "</td></tr>";
-            var tableBody = parsedResponse.data.reduce((body, cur) => {
-                var values = Object.values(cur);
-                var sum = values.reduce((row, item) => {
-                    switch(!isNaN(item)){
-                        case true: 
-                            return row + `<td class="text-right">${item}</td>`;
-                            break;
-                        default:
-                            return row + `<td>${item}</td>`;
-                            break;
-                    }
-                }, "");
-                return body + "<tr>" + sum + "</tr>";
-            }, "");
-            //$("#ajaxContents").html(`<table id="table" class="table"><thead>${tableHead}</thead><tbody>${tableBody}</tbody></table>`);
-            */
-            
-            var headers = Object.keys(parsedResponse.data[0]);
-            $("#ajaxContents").html(`<table id="table" class="table" width="100%";></table>`);
-            var table = $("#table").dataTable({
-                headers,
-                data: response.data,
-                rowId: response.rowId
-            });
-        }
-        else {
-            console.log(response);
+        var parsedResponse = await response.json();
+
+        table = $("#table").dataTable({
+            columns: parsedResponse.data ? Object.keys(parsedResponse.data[0]).map((key) => {return { title: key, data: key }}) : null,
+            data: parsedResponse.data ? parsedResponse.data : null,
+            retrieve: true,
+            rowId: parsedResponse.rowId ? parsedResponse.rowId : null,
+            //responsive: true,
+        });
+
+        if(parsedResponse.response === 'ERROR'){
+            window.alert(`Error: ${parsedResponse.error}`);
         }
     }
+
+    //non funziona
+    $('#table tbody').on('click', 'tr', () => {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        }
+        else {
+            table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
     //#endregion
 
     //#region CRUD
-    get = (id) => {
-            fetch(apiUrl[id], {
-                method: 'GET',
-                headers: new Headers({
-                    'Content-Type': 'application/json',
-                    //'Accept': 'text/html',
-                    'Accept': 'application/json',
-                    'X-Auth-Token': sessionStorage.getItem('token')
-                })
-            })
-                //.then(response => response.headers.get('Content-Type'))
-                .then(response => response.headers.get('Content-Type') === 'text/html;charset=UTF-8' ? parseHtml(response) : parseJson(response))
-                .catch(error => { console.log("ERRORE: ", error) });
-        };
-    //#endregion
+    $(".menu").click((event) => {
+        currentController = event.target.id;
 
-    //#region AUTH
-    var loginAction = document.querySelector("#doLogin").addEventListener("click", () => {
-        fetch(apiUrl.user, {
-            method: 'POST',
+        fetch(apiUrl[currentController], {
+            method: 'GET',
             headers: new Headers({
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
+                //'Accept': 'text/html',
                 //'Accept': 'application/json',
-                //'X-Auth-Token': sessionStorage.getItem('token')
-            }),
-            body: JSON.stringify({
-                email: document.querySelector("#email").value,
-                password: document.querySelector("#password").value
+                'X-Auth-Token': sessionStorage.getItem('token')
             })
         })
-            .then(response => response.json())
-            //.then(response => response.text())
-            .then(response => {
-                if (response.response === 'OK') {
-                    sessionStorage.setItem("token", response.data);
-                    console.log("Correctly logged in with token: ", response.data);
-                    toggleLayers();
-                }
-            })
+            .then(response => response.headers.get('Content-Type') === 'application/json' ? parseJson(response) : parseHtml(response))
             .catch(error => { console.log("ERRORE: ", error) });
     });
 
-    var logoutAction = document.querySelector("#doLogout").addEventListener("click", () => {
+    //non funziona
+    $("#deleteBtn").click(() => {
+        id = table.row('.selected').id();
+        
+        fetch(apiUrl[currentController], {
+            method: 'DELETE',
+            headers: new Headers({
+                //'Accept': 'text/html',
+                //'Accept': 'application/json',
+                'X-Auth-Token': sessionStorage.getItem('token')
+            })
+        })
+            .then(response => {
+                if(response.response === 'OK'){
+                    table.row('.selected').id().remove().draw(false);
+                }
+            })
+            .catch(error => { console.log("ERRORE: ", error) });
+
+    });
+    //#endregion
+
+    //#region AUTH
+    var loginAction = $("#doLogin").on("click", () => {
+        var regx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if($("#email").val().length > 0 && $("#password").val().length > 0 && regx.test($("#email").val())){
+            fetch(apiUrl.user, {
+                    method: 'POST',
+                    headers: new Headers({
+                }),
+                body: JSON.stringify({
+                    email: $("#email").val(),
+                    password: $("#password").val()
+                })
+            })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.response === 'OK') {
+                        sessionStorage.setItem("token", response.data);
+                        console.log("Correctly logged in with token: ", response.data);
+                        $("#loginForm")[0].reset();
+                        toggleLayers();
+                    }
+                    else {
+                        window.alert(`Error: ${response.error}`);
+                    }
+                })
+                .catch(error => { console.log("ERRORE: ", error) });
+        } else {
+            window.alert("Valid Email and password fields required");
+        }
+    });
+
+    var logoutAction = $("#doLogout").on("click", () => {
             var token = sessionStorage.getItem('token');
             fetch(apiUrl.user, {
                 method: 'DELETE',
                 headers: new Headers({
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    //'Accept': 'application/json',
                     'X-Auth-Token': token
                 }),
                 body: JSON.stringify({
@@ -197,7 +216,6 @@
                 })
             })
                 .then(response => response.json())
-                //.then(response => response.text())
                 .then(response => {
                     if (response.response === 'OK') {
                         console.log("Correctly logged out");

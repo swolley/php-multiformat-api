@@ -1,6 +1,15 @@
 <?php
 
 class User extends Auth {
+    public function get($params=array()){
+        return [
+            'rowId' => 'id',
+            'data' => isset($params['id']) ? 
+                $this->db->procedure("GetUser", ['id' => $params['id']]) : 
+                $this->db->procedure("GetAllUSers")
+        ];
+    }
+
     public function post($userData){
         //check if user exists
         if(strlen($userData['email']) === 0 || strlen($userData['password']) === 0){
@@ -13,7 +22,7 @@ class User extends Auth {
         ]);
 
         //temp perchè non funziona la query
-        $user = [['id'=>1]];
+        //$user = [['id'=>1]];
 
         if(count($user) === 0){
             return "No user found";
@@ -27,7 +36,7 @@ class User extends Auth {
         ]);
 
         return [
-            'data' => $result['token']
+            'data' => $result[0]['token']
         ]; 
     }
 
