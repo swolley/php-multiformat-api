@@ -5,7 +5,7 @@ function __autoload($class){
     foreach ($paths as $directory) {
         if(file_exists($directory . strtolower($class) . '.php')){
             include_once($directory . strtolower($class) . '.php');
-            if(!class_exists($class)){
+            if(!class_exists($class) && !trait_exists($class)){
                 Response::error("No function found", 404);
             }
             

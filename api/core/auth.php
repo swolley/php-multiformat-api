@@ -1,6 +1,5 @@
 <?php
-
-class Auth {
+trait Auth {
     protected $db;
 
     public function __construct(){

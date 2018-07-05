@@ -71,161 +71,168 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
-</body>
-<script type="text/javascript">
-    //region PATHS
-    const apiUrl = {
-        product: "api/product",
-        user: "api/user",
-    };
+    
+    <!-- custom scripts -->
+    <script type="text/javascript">
+        //region PATHS
+        const apiUrl = {
+            product: "api/product",
+            user: "api/user",
+        };
 
-    let currentController = "product";
+        let currentController;
 
-    let table;
-    //#endregion
+        let table;
+        //#endregion
 
-    //#region PAGE
-    $(window).on("load", () => {
-        if (sessionStorage.getItem("token") != null) {
-            toggleLayers();
-        }
-    });
-
-    toggleLayers = () => {
-        $("#loginBlock").toggle();
-        $("#contentBlock").toggle();
-    }
-
-    parseHtml = async (response) => {
-        $("#ajaxContents").html(await response.text());
-    }
-
-    parseJson = async (response) => {
-        $("#ajaxContents").html(
-            `<div>
-                <button type="button" class="btn btn-primary" id="deleteBtn"><span class="material-icons">delete</span> Delete</button>
-            </div>
-            <table id="table" class="table-responsive" style"width:100%">
-            </table>`);
-
-        var parsedResponse = await response.json();
-
-        table = $("#table").dataTable({
-            columns: parsedResponse.data ? Object.keys(parsedResponse.data[0]).map((key) => {return { title: key, data: key }}) : null,
-            data: parsedResponse.data ? parsedResponse.data : null,
-            retrieve: true,
-            rowId: parsedResponse.rowId ? parsedResponse.rowId : null,
-            //responsive: true,
+        //#region PAGE
+        $(window).on("load", () => {
+            if (sessionStorage.getItem("token") != null) {
+                toggleLayers();
+            }
         });
 
-        if(parsedResponse.response === 'ERROR'){
-            window.alert(`Error: ${parsedResponse.error}`);
+        toggleLayers = () => {
+            $("#loginBlock").toggle();
+            $("#contentBlock").toggle();
         }
-    }
 
-    //non funziona
-    $('#table tbody').on('click', 'tr', () => {
-        if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
+        parseHtml = async (response) => {
+            $("#ajaxContents").html(await response.text());
         }
-        else {
-            table.$('tr.selected').removeClass('selected');
-            $(this).addClass('selected');
+
+        parseJson = async (response) => {
+            $("#ajaxContents").html(
+                `<div>
+                    <h1>${currentController.toUpperCase()}</h1>
+                    <hr/>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary" id="deleteBtn"><span class="material-icons">delete</span> Delete</button>
+                </div>
+                <hr/>
+                <div>
+                    <table id="table" class="table-responsive" style"width:100%"></table>
+                </div>`);
+
+            var parsedResponse = await response.json();
+
+            table = $("#table").dataTable({
+                columns: parsedResponse.data ? Object.keys(parsedResponse.data[0]).map((key) => {return { title: key, data: key }}) : null,
+                data: parsedResponse.data ? parsedResponse.data : null,
+                retrieve: true,
+                rowId: parsedResponse.rowId ? parsedResponse.rowId : null,
+                //responsive: true,
+            });
+
+            if(parsedResponse.response === 'ERROR'){
+                window.alert(`Error: ${parsedResponse.error}`);
+            }
         }
-    });
-    //#endregion
 
-    //#region CRUD
-    $(".menu").click((event) => {
-        currentController = event.target.id;
+        //non funziona
+        $('#table tbody').on('click', 'tr', () => {
+            if ($(this).hasClass('selected')) {
+                $(this).removeClass('selected');
+            }
+            else {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        });
+        //#endregion
 
-        fetch(apiUrl[currentController], {
-            method: 'GET',
-            headers: new Headers({
-                //'Accept': 'text/html',
-                //'Accept': 'application/json',
-                'X-Auth-Token': sessionStorage.getItem('token')
-            })
-        })
-            .then(response => response.headers.get('Content-Type') === 'application/json' ? parseJson(response) : parseHtml(response))
-            .catch(error => { console.log("ERRORE: ", error) });
-    });
+        //#region CRUD
+        $(".menu").click((event) => {
+            currentController = event.target.id;
 
-    //non funziona
-    $("#deleteBtn").click(() => {
-        id = table.row('.selected').id();
-        
-        fetch(apiUrl[currentController], {
-            method: 'DELETE',
-            headers: new Headers({
-                //'Accept': 'text/html',
-                //'Accept': 'application/json',
-                'X-Auth-Token': sessionStorage.getItem('token')
-            })
-        })
-            .then(response => {
-                if(response.response === 'OK'){
-                    table.row('.selected').id().remove().draw(false);
-                }
-            })
-            .catch(error => { console.log("ERRORE: ", error) });
-
-    });
-    //#endregion
-
-    //#region AUTH
-    var loginAction = $("#doLogin").on("click", () => {
-        var regx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-        if($("#email").val().length > 0 && $("#password").val().length > 0 && regx.test($("#email").val())){
-            fetch(apiUrl.user, {
-                    method: 'POST',
-                    headers: new Headers({
-                }),
-                body: JSON.stringify({
-                    email: $("#email").val(),
-                    password: $("#password").val()
+            fetch(apiUrl[currentController], {
+                method: 'GET',
+                headers: new Headers({
+                    //'Accept': 'text/html',
+                    //'Accept': 'application/json',
+                    'X-Auth-Token': sessionStorage.getItem('token')
                 })
             })
-                .then(response => response.json())
-                .then(response => {
-                    if (response.response === 'OK') {
-                        sessionStorage.setItem("token", response.data);
-                        console.log("Correctly logged in with token: ", response.data);
-                        $("#loginForm")[0].reset();
-                        toggleLayers();
-                    }
-                    else {
-                        window.alert(`Error: ${response.error}`);
-                    }
-                })
+                .then(response => response.headers.get('Content-Type') === 'application/json' ? parseJson(response) : parseHtml(response))
                 .catch(error => { console.log("ERRORE: ", error) });
-        } else {
-            window.alert("Valid Email and password fields required");
-        }
-    });
+        });
 
-    var logoutAction = $("#doLogout").on("click", () => {
-            var token = sessionStorage.getItem('token');
-            fetch(apiUrl.user, {
+        //non funziona
+        $("#deleteBtn").click(() => {
+            id = table.row('.selected').id();
+            
+            fetch(apiUrl[currentController], {
                 method: 'DELETE',
                 headers: new Headers({
-                    'X-Auth-Token': token
-                }),
-                body: JSON.stringify({
-                    token
+                    //'Accept': 'text/html',
+                    //'Accept': 'application/json',
+                    'X-Auth-Token': sessionStorage.getItem('token')
                 })
             })
-                .then(response => response.json())
                 .then(response => {
-                    if (response.response === 'OK') {
-                        console.log("Correctly logged out");
-                        sessionStorage.removeItem("token");
-                        toggleLayers();
+                    if(response.response === 'OK'){
+                        table.row('.selected').id().remove().draw(false);
                     }
                 })
                 .catch(error => { console.log("ERRORE: ", error) });
-        });
-    //#endregion
-</script>
 
+        });
+        //#endregion
+
+        //#region AUTH
+        var loginAction = $("#doLogin").on("click", () => {
+            var regx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            if($("#email").val().length > 0 && $("#password").val().length > 0 && regx.test($("#email").val())){
+                fetch(apiUrl.user, {
+                        method: 'POST',
+                        headers: new Headers({
+                    }),
+                    body: JSON.stringify({
+                        email: $("#email").val(),
+                        password: $("#password").val()
+                    })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        if (response.response === 'OK') {
+                            sessionStorage.setItem("token", response.data);
+                            console.log("Correctly logged in with token: ", response.data);
+                            $("#loginForm")[0].reset();
+                            toggleLayers();
+                        }
+                        else {
+                            window.alert(`Error: ${response.error}`);
+                        }
+                    })
+                    .catch(error => { console.log("ERRORE: ", error) });
+            } else {
+                window.alert("Valid Email and password fields required");
+            }
+        });
+
+        var logoutAction = $("#doLogout").on("click", () => {
+                var token = sessionStorage.getItem('token');
+                fetch(apiUrl.user, {
+                    method: 'DELETE',
+                    headers: new Headers({
+                        'X-Auth-Token': token
+                    }),
+                    body: JSON.stringify({
+                        token
+                    })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        if (response.response === 'OK') {
+                            console.log("Correctly logged out");
+                            sessionStorage.removeItem("token");
+                            toggleLayers();
+                        }
+                    })
+                    .catch(error => { console.log("ERRORE: ", error) });
+            });
+        //#endregion
+    </script>
+</body>
 </html>

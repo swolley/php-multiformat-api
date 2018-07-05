@@ -1,7 +1,16 @@
 <?php
 
-class User extends Auth {
-    public function get($params=array()){
+class User implements ICrud {
+    use Auth;
+
+    public function update($params=[]){
+        throw new NotImplementedException();
+    }
+    public function put($params=[]){
+        throw new NotImplementedException();
+    } 
+
+    public function get($params=[]){
         return [
             'rowId' => 'id',
             'data' => isset($params['id']) ? 
@@ -10,15 +19,15 @@ class User extends Auth {
         ];
     }
 
-    public function post($userData){
+    public function post($params=[]){
         //check if user exists
-        if(strlen($userData['email']) === 0 || strlen($userData['password']) === 0){
+        if(strlen($params['email']) === 0 || strlen($params['password']) === 0){
             return "no parameters";
         }
 
         $user = $this->db->procedure("GetUserByCredentials", [
-            "email" => $userData['email'],
-            "hashedPassword" => hash("sha256", $userData['password'])
+            "email" => $params['email'],
+            "hashedPassword" => hash("sha256", $params['password'])
         ]);
 
         //temp perchè non funziona la query
@@ -40,7 +49,7 @@ class User extends Auth {
         ]; 
     }
 
-    public function delete($userData){
+    public function delete($params=[]){
         if(!isset($userData['token'])){
             return "No token found";
         }

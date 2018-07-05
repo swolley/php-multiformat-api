@@ -1,13 +1,25 @@
 <?php
 
-class Product{
+class Product implements ICrud{
     private $db;
 
     public function __construct(){
         $this->db = new Database();
     }
 
-    public function get($params=array()){
+    public function update($params=[]){
+        throw new NotImplementedException();
+    }
+    
+    public function post($params=[]){
+        throw new NotImplementedException();
+    }
+
+    public function delete($params=[]){
+        throw new NotImplementedException();
+    }
+
+    public function get($params=[]){
         return [
             'rowId' => 'id',
             'data' => isset($params['id']) ? 
@@ -16,7 +28,7 @@ class Product{
         ];
     }
 
-    public function put($params=array()){
+    public function put($params=[]){
         if(!isset($params['name'])){
             return "Parameter missing";
         }
