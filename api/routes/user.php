@@ -1,4 +1,5 @@
 <?php
+namespace Routes;
 
 class User implements ICrud {
     use Auth;

@@ -1,4 +1,5 @@
 <?php
+namespace Core;
 
 class Response{
     public static function send($msg, $response = 'OK', $status = 200){

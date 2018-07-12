@@ -1,0 +1,20 @@
+{
+    "name": "swolley/php-multiformat-api",
+    "description": "",
+    "require": {
+        "firebase/php-jwt": "^5.0"
+    },
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Marco Panzanaro",
+            "email": "myentity@inwind.it"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Core\\": "./core/",
+            "Routes\\": "./routes/"
+        }
+    }
+}

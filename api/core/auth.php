@@ -1,4 +1,6 @@
 <?php
+namespace Core;
+
 trait Auth {
     protected $db;
 

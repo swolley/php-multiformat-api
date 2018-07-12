@@ -1,4 +1,5 @@
 <?php
+namespace Routes;
 
 class Product implements ICrud{
     private $db;

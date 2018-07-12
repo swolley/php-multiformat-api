@@ -1,0 +1,18 @@
+<?php
+//errors and debug
+define("DEBUG_MODE", true);     //set to false in production
+
+error_reporting(DEBUG_MODE ? E_ALL : NULL);
+ini_set('display_errors', DEBUG_MODE ? 1 : 0);
+
+//Database
+define("DB_TYPE", "dbtype");
+define("DB_HOST", "host");
+define("DB_NAME", "dbname");
+define("DB_USER", "dbuser");
+define("DB_PASS", "dbpassword");
+
+//App
+define("CORE", __DIR__ . "/core/");
+define("ROUTES", __DIR__ . "/routes/");
+define("WEB", __DIR__ . "/../web/");

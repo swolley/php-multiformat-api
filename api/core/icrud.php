@@ -1,4 +1,5 @@
 <?php
+namespace Core;
 
 interface ICrud {
     public function get($params=[]);

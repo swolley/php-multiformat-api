@@ -1,5 +1,5 @@
 <?php
-//namespace Libs;
+namespace Core;
 
 class Router{
     public function __construct(/*$method, $request, $token, $format = 'application/json', $parameters = []*/){
