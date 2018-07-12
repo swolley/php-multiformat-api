@@ -1,5 +1,6 @@
 <?php
-namespace Core;
+namespace Api\Core;
+use \PDO;
 
 class Database extends PDO {
     public function __construct(){

@@ -1,7 +1,4 @@
 <?php
-use Core;
-use Routes;
-
 //add here everything needed before startup
 //sqitched to composer autoloader
 

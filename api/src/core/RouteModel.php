@@ -1,0 +1,16 @@
+<?php
+namespace Api\Core;
+
+abstract class RouteModel implements ICrudable {
+    protected $db;
+
+    public function __construct(){
+        $this->db = new Database();
+    }
+
+    public abstract function get($params=[]) : array;
+    public abstract function post($params=[]) : array;
+    public abstract function delete($params=[]) : array;
+    public abstract function update($params=[]) : array;
+    public abstract function put($params=[]) : array;
+}

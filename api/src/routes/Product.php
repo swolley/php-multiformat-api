@@ -1,26 +1,25 @@
 <?php
-namespace Routes;
+namespace Api\Routes;
+use Api\Core\RouteModel;
 
-class Product implements ICrud{
-    private $db;
-
-    public function __construct(){
-        $this->db = new Database();
+class Product extends RouteModel{
+    public function  __contructor(){
+        parent();
     }
 
-    public function update($params=[]){
+    public function update($params=[]) : array {
         throw new NotImplementedException();
     }
     
-    public function post($params=[]){
+    public function post($params=[]) : array {
         throw new NotImplementedException();
     }
 
-    public function delete($params=[]){
+    public function delete($params=[]) : array {
         throw new NotImplementedException();
     }
 
-    public function get($params=[]){
+    public function get($params=[]) : array {
         return [
             'rowId' => 'id',
             'data' => isset($params['id']) ? 
@@ -29,7 +28,7 @@ class Product implements ICrud{
         ];
     }
 
-    public function put($params=[]){
+    public function put($params=[]) : array {
         if(!isset($params['name'])){
             return "Parameter missing";
         }

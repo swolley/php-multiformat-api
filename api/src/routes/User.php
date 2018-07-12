@@ -1,26 +1,31 @@
 <?php
-namespace Routes;
+namespace Api\Routes;
+use Api\Core\RouteModel;
+use Api\Core\Auth;
 
-class User implements ICrud {
-    use Auth;
+class User extends RouteModel {
 
-    public function update($params=[]){
+    public function  __contructor(){
+        parent();
+    }
+
+    public function update($params=[]) : array {
         throw new NotImplementedException();
     }
-    public function put($params=[]){
+    public function put($params=[]) : array {
         throw new NotImplementedException();
     } 
 
-    public function get($params=[]){
+    public function get($params=[]) : array {
         return [
             'rowId' => 'id',
             'data' => isset($params['id']) ? 
                 $this->db->procedure("GetUser", ['id' => $params['id']]) : 
-                $this->db->procedure("GetAllUSers")
+                $this->db->procedure("GetAllUsers")
         ];
     }
 
-    public function post($params=[]){
+    public function post($params=[]) : array {
         //check if user exists
         if(strlen($params['email']) === 0 || strlen($params['password']) === 0){
             return "no parameters";
@@ -35,22 +40,22 @@ class User implements ICrud {
         //$user = [['id'=>1]];
 
         if(count($user) === 0){
-            return "No user found";
+            return [];
         }
 
-        $token = static::createToken($user[0]['id']);
+        $token = (new Auth())->createToken($user[0]);
 
-        $result = $this->db->procedure("InsertUserToken", [
+        /*$result = $this->db->procedure("InsertUserToken", [
             "userId" => $user[0]['id'],
             "token" => $token
-        ]);
+        ]);*/
 
         return [
-            'data' => $result[0]['token']
+            'data' => $token
         ]; 
     }
 
-    public function delete($params=[]){
+    public function delete($params=[]) : array {
         if(!isset($userData['token'])){
             return "No token found";
         }

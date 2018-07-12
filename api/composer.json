@@ -13,8 +13,9 @@
     ],
     "autoload": {
         "psr-4": {
-            "Core\\": "./core/",
-            "Routes\\": "./routes/"
+            "Api\\": "src/",
+            "Api\\Core\\": "src/core/",
+            "Api\\Routes\\": "src/routes/"
         }
     }
 }

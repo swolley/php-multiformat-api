@@ -102,8 +102,11 @@
         }
 
         parseJson = async (response) => {
-            $("#ajaxContents").html(
-                `<div>
+            var parsedResponse = await response.json();
+            
+            if(parsedResponse.response === 'OK'){
+                $("#ajaxContents").html(
+                    `<div>
                     <h1>${currentController.toUpperCase()}</h1>
                     <hr/>
                 </div>
@@ -115,17 +118,15 @@
                     <table id="table" class="table-responsive" style"width:100%"></table>
                 </div>`);
 
-            var parsedResponse = await response.json();
-
-            table = $("#table").dataTable({
-                columns: parsedResponse.data ? Object.keys(parsedResponse.data[0]).map((key) => {return { title: key, data: key }}) : null,
-                data: parsedResponse.data ? parsedResponse.data : null,
-                retrieve: true,
-                rowId: parsedResponse.rowId ? parsedResponse.rowId : null,
-                //responsive: true,
-            });
-
-            if(parsedResponse.response === 'ERROR'){
+                table = $("#table").dataTable({
+                    columns: parsedResponse.data ? Object.keys(parsedResponse.data[0]).map((key) => {return { title: key, data: key }}) : null,
+                    data: parsedResponse.data ? parsedResponse.data : null,
+                    retrieve: true,
+                    rowId: parsedResponse.rowId ? parsedResponse.rowId : null,
+                    //responsive: true,
+                });
+            }
+            else{
                 window.alert(`Error: ${parsedResponse.error}`);
             }
         }
