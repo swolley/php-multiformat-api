@@ -1,7 +1,6 @@
 <?php
 namespace Api\Core;
 
-//BUG: SplEnum class not found
 class HttpStatusCode {
     const SWITCHING_PROTOCOLS = 101;
     const OK = 200;
