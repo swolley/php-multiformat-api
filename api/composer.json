@@ -13,9 +13,19 @@
     ],
     "autoload": {
         "psr-4": {
-            "Api\\": "src/",
+            "Api\\": "/",
+            "Api\\Scripts\\": "scripts/",
             "Api\\Core\\": "src/core/",
+            "Api\\Local\\": "src/local/",
             "Api\\Routes\\": "src/routes/"
         }
+    },
+    "scripts": {
+        "post-create-project-cmd": [
+            "@php -r \"copy('config.example.php', 'config.php');\""
+        ],
+        "createroute": [
+            "@php ./scripts/createRoute.php;"
+        ]
     }
 }

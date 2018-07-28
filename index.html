@@ -41,15 +41,15 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav">
+                        <ul class="navbar-nav" id="menuLinks">
                             <li class="nav-item">
-                                <a class="nav-link menu" href="#" id="product"><span class="material-icons">shopping_cart</span> Products</a>
+                                <a class="nav-link menu" href="#" id="product">Products</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link menu" href="#" id="user"><span class="material-icons">people</span> Users</a>
+                                <a class="nav-link menu" href="#" id="user">Users</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#" id="doLogout"><span class="material-icons">meeting_room</span> Logout</a>
+                                <a class="nav-link" href="#" id="doLogout">Logout</a>
                             </li>
                         </ul>
                     </div>
@@ -152,9 +152,16 @@
                 headers: new Headers({
                     //'Accept': 'text/html',
                     //'Accept': 'application/json',
-                    'X-Auth-Token': sessionStorage.getItem('token')
+                    'Authentication': 'Bearer ' + sessionStorage.getItem('token')
                 })
             })
+            	.then(response => {
+            		if(response.ok){
+            			return response;
+            		}
+
+  					throw new Error('Network response was not ok.');
+            	})
                 .then(response => response.headers.get('Content-Type') === 'application/json' ? parseJson(response) : parseHtml(response))
                 .catch(error => { console.log("ERRORE: ", error) });
         });
@@ -168,13 +175,20 @@
                 headers: new Headers({
                     //'Accept': 'text/html',
                     //'Accept': 'application/json',
-                    'X-Auth-Token': sessionStorage.getItem('token')
+                    'Authentication': 'Bearer ' + sessionStorage.getItem('token')
                 })
             })
+            	.then(response => {
+            		if(response.ok){
+            			return response;
+            		}
+            		
+  					throw new Error('Network response was not ok.');
+            	})
                 .then(response => {
-                    if(response.response === 'OK'){
+                    //if(response.response === 'OK'){
                         table.row('.selected').id().remove().draw(false);
-                    }
+                    //}
                 })
                 .catch(error => { console.log("ERRORE: ", error) });
 
@@ -194,17 +208,25 @@
                         password: $("#password").val()
                     })
                 })
+                	.then(response => {
+	            		if(response.ok){
+	            			return response
+	            		}
+	            		
+	  					throw new Error('Network response was not ok.');
+	            	})
                     .then(response => response.json())
                     .then(response => {
-                        if (response.response === 'OK') {
+                        //if (response.response === 'OK') {
                             sessionStorage.setItem("token", response.data);
                             console.log("Correctly logged in with token: ", response.data);
                             $("#loginForm")[0].reset();
+                            getTopMenuLinks();
                             toggleLayers();
-                        }
-                        else {
-                            window.alert(`Error: ${response.error}`);
-                        }
+                        //}
+                        //else {
+                        //    window.alert(`Error: ${response.error}`);
+                        //}
                     })
                     .catch(error => { console.log("ERRORE: ", error) });
             } else {
@@ -213,26 +235,65 @@
         });
 
         var logoutAction = $("#doLogout").on("click", () => {
-                var token = sessionStorage.getItem('token');
                 fetch(apiUrl.user, {
                     method: 'DELETE',
                     headers: new Headers({
-                        'X-Auth-Token': token
+                        'Authentication': 'Bearer ' + sessionStorage.getItem('token')
                     }),
                     body: JSON.stringify({
                         token
                     })
                 })
+                	.then(response => {
+	            		if(response.ok){
+	            			return response
+	            		}
+	            		
+	  					throw new Error('Network response was not ok.');
+	            	})
                     .then(response => response.json())
                     .then(response => {
-                        if (response.response === 'OK') {
+                        //if (response.response === 'OK') {
                             console.log("Correctly logged out");
                             sessionStorage.removeItem("token");
                             toggleLayers();
-                        }
+                        //}
                     })
                     .catch(error => { console.log("ERRORE: ", error) });
             });
+
+        var getTopMenuLinks = async ()=>{
+            await fetch('api/frontend', {
+                method: 'GET',
+                headers: new Headers({
+                    //'Accept': 'text/html',
+                    //'Accept': 'application/json',
+                    'Authentication': sessionStorage.getItem('token')
+                })
+            })
+            	.then(response => {
+            		if(response.ok){
+            			return response
+            		}
+            		
+  					throw new Error('Network response was not ok.');
+            	})
+                .then(response => response.json())
+                .then(parsedResponse => {
+                    //if(parsedResponse.response === 'OK'){
+                        menuLinks = "";
+                        parsedResponse.data.array.forEach(item => {
+                            menuLinks += 
+                                `<li class="nav-item">
+                                    <a class="nav-link menu" href="#" id="${item.id}" >${item.name}</a>
+                                </li >`;
+                        });
+                        $("#menuLinks").html(menuLinks);
+                        /*apiUrl = ;*/
+                    //}
+                })
+                .catch(error => { console.log("ERRORE: ", error) });
+        }
         //#endregion
     </script>
 </body>

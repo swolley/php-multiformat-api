@@ -9,8 +9,9 @@ abstract class RouteModel implements ICrudable {
     }
 
     public abstract function get($params=[]) : array;
-    public abstract function post($params=[]) : array;
+    public abstract function post($params=[]);
     public abstract function delete($params=[]) : array;
     public abstract function update($params=[]) : array;
     public abstract function put($params=[]) : array;
+    public abstract function patch($params=[]) : array;
 }

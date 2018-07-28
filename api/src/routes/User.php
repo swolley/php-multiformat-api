@@ -1,12 +1,12 @@
 <?php
 namespace Api\Routes;
 use Api\Core\RouteModel;
-use Api\Core\Auth;
+use Api\Local\Auth;
 
 class User extends RouteModel {
 
-    public function  __contructor(){
-        parent();
+    public function  __construct(){
+        parent::__construct();
     }
 
     public function update($params=[]) : array {
@@ -18,26 +18,23 @@ class User extends RouteModel {
 
     public function get($params=[]) : array {
         return [
-            'rowId' => 'id',
+            'rowId' => 'id',    //TODO: don't like so much this solution to responde primary key
             'data' => isset($params['id']) ? 
-                $this->db->procedure("GetUser", ['id' => $params['id']]) : 
-                $this->db->procedure("GetAllUsers")
+                $this->db->procedure('GetUser', ['id' => $params['id']]) : 
+                $this->db->procedure('GetAllUsers')
         ];
     }
 
-    public function post($params=[]) : array {
+    public function post($params=[]) {
         //check if user exists
         if(strlen($params['email']) === 0 || strlen($params['password']) === 0){
-            return "no parameters";
+            return 'no parameters';
         }
 
-        $user = $this->db->procedure("GetUserByCredentials", [
-            "email" => $params['email'],
-            "hashedPassword" => hash("sha256", $params['password'])
+        $user = $this->db->procedure('GetUserByCredentials', [
+            'email' => $params['email'],
+            'hashedPassword' => hash('sha256', $params['password'])
         ]);
-
-        //temp perchè non funziona la query
-        //$user = [['id'=>1]];
 
         if(count($user) === 0){
             return [];
@@ -57,15 +54,19 @@ class User extends RouteModel {
 
     public function delete($params=[]) : array {
         if(!isset($userData['token'])){
-            return "No token found";
+            return 'No token found';
         }
 
-        $result = $this->db->delete("user_tokens", "token=:token", [
-            "token" => $userData['token']
+        $result = $this->db->delete('user_tokens', 'token=:token', [
+            'token' => $userData['token']
         ]);
 
         return $result != 0 ? [
-            "data" => "logged out"
-        ] : "No token found";
+            'data' => 'logged out'
+        ] : 'No token found';
+    }
+
+    public function patch($params=[]) : array {
+        throw new NotImplementedException();
     }
 }

@@ -28,8 +28,8 @@ class Database extends PDO {
     public function insert($table, $params){
         try{
             ksort($params);
-            $keys = implode(",", array_keys($params));
-            $values = ":" . implode(",:", array_keys($params));
+            $keys = implode(',', array_keys($params));
+            $values = ':' . implode(',:', array_keys($params));
 
             $this->beginTransaction();
             $st = $this->prepare("INSERT INTO $table ($keys) VALUES ($values)");
@@ -49,7 +49,7 @@ class Database extends PDO {
     public function update($table, $params, $where){
         try{
             ksort($params);
-            $values = "";
+            $values = '';
             foreach($params as $key=>$value){
                 $values .= "`$key`=:$keys";
             }
@@ -83,7 +83,7 @@ class Database extends PDO {
     public function procedure($name, $params = [], $fetchMode = PDO::FETCH_ASSOC){
         try{
             //ksort($params);
-            $procedureParams = "";
+            $procedureParams = '';
             foreach ($params as $key => $value) {
                 $procedureParams .= ":$key,";
             }
