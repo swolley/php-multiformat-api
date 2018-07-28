@@ -17,8 +17,7 @@ index.html is only a single page test file;
 
 ## todos
 1) project is still in progress;
-2) implements GET  on single row passing id in address
-3) create an error's handler method
+3) create an error's handler method;
 
 ##use
 1) config.php file created by composer after 'install' command;
