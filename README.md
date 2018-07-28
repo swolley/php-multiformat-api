@@ -19,10 +19,10 @@ index.html is only a single page test file;
 1) project is still in progress;
 3) create an error's handler method;
 
-##use
+## use
 1) config.php file created by composer after 'install' command;
 2) Routes classes must extend Api\Core\RouterModel abstract class. You can go to 'script' directory and call createRoute.php script to automatically create new routes with specified name, than implement them;
 3) stored procedure parameters for mysal database need to be passed in same order as the defined procedure;
 
-##credits
+## credits
 implemented use of jwt tokens from firebase/php-jwt repository (forked from the original luciferous/jwt repository);
