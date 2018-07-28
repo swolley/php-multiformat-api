@@ -12,20 +12,22 @@ php api that handles json or html responses depending by the request;
 'local' can contains all custom classer not to be used as routes;
 'routes' containes all the entities corresponsing to api's URIs. Routes classes must extend Api\Core\RouterModel abstract class;
 
+## use
+1) composer install
+2) a config.php file created by composer after 'install' command. just compile fields inside the file;
+3) Routes classes must extend Api\Core\RouterModel abstract class. You can go to 'script' directory and call createRoute.php script to automatically create new routes with specified name, than implement them;
+4) stored procedure parameters for mysal database need to be passed in same order as the defined procedure;
+
 ## frontend
 index.html is only a single page test file;
 
 ## todos
 1) project is still in progress;
+2) createRoute.php script called by composer run-script createroute command does not function
 3) create an error's handler method;
-
-## use
-1) config.php file created by composer after 'install' command;
-2) Routes classes must extend Api\Core\RouterModel abstract class. You can go to 'script' directory and call createRoute.php script to automatically create new routes with specified name, than implement them;
-3) stored procedure parameters for mysal database need to be passed in same order as the defined procedure;
 
 ## credits
 implemented use of jwt tokens from [firebase/php-jwt](https://github.com/firebase/php-jwt) repository (forked from the original [luciferous/jwt](https://github.com/luciferous/jwt) repository);
 
-##license
+## license
 [3-Clause BSD](https://opensource.org/licenses/BSD-3-Clause);
