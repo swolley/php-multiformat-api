@@ -17,9 +17,13 @@ define('CORE', __DIR__ . '/src/core/');
 define('ROUTES', __DIR__ . '/src/routes/');
 define('WEB', __DIR__ . '/../web/');
 
-//Tokens
-define('KEY', 'N91vfWUpcmj1KvCmfrS8V9vu8gKD21LsslH0wE0CrdCAm5GVq3vpR4TACy6qb+/0+aFr23WOuluA1jKVrqHknA==');    //change here
-define('SERVERNAME', 'my_api_server');              //change here
+//Auth
+define('AUTH_METHOD', 'Bearer');    //set 'Bearer' (jwt libraries already installed) or 'Basic' (credentials)
+
+if(AUTH_METHOD === 'Bearer'){
+    define('KEY', 'N91vfWUpcmj1KvCmfrS8V9vu8gKD21LsslH0wE0CrdCAm5GVq3vpR4TACy6qb+/0+aFr23WOuluA1jKVrqHknA==');    //change here if Bearer method
+    define('SERVERNAME', 'my_api_server');              //change here if Bearer method
+}
 
 //exlusion method for authentications in format array(request=>array(methods)
 //if in array can do request withoud auth

@@ -7,23 +7,31 @@ class Frontend extends RouteModel {
         parent::__construct();
     }
 
-    public function get($params=[]) : array {
-        throw new NotImplementedException();
+    public function get($params=[]) {
+        return [
+            'data' => array_reduce(function($file){
+                return strtolower(strstr($file, ".php", TRUE));
+            }, array_diff(scandir(ROUTES), ['.', '..', 'Frontend']))
+        ];
     }
 
     public function post($params=[]) {
         throw new NotImplementedException();
     }
 
-    public function delete($params=[]) : array {
+    public function delete($params=[]) {
         throw new NotImplementedException();
     }
 
-    public function update($params=[]) : array {
+    public function update($params=[]) {
         throw new NotImplementedException();
     }
 
-    public function put($params=[]) : array {
+    public function put($params=[]) {
+        throw new NotImplementedException();
+    }
+
+    public function patch($params=[]) {
         throw new NotImplementedException();
     }
 }

@@ -9,12 +9,12 @@ class Response{
             : static::json($responseData);
     }
 
-    public static function error(string &$responseMsg, int &$status = HttpStatusCode::INTERNAL_SERVER_ERROR) {
+    public static function error(string $responseMsg, int $status = HttpStatusCode::INTERNAL_SERVER_ERROR) {
         return static::json($responseMsg, $status);
     }
     
-    private static function json(&$responseData, int &$status = HttpStatusCode::OK) {
-        header('Content-Type: application/json', true, $status);
+    private static function json(&$responseData, int $status = HttpStatusCode::OK) {
+        header('Content-Type: application/json', TRUE, $status);
         return json_encode($responseData);
     }
 

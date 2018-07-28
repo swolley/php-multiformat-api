@@ -9,19 +9,23 @@ class User extends RouteModel {
         parent::__construct();
     }
 
-    public function update($params=[]) : array {
+    public function update($params=[]) {
         throw new NotImplementedException();
     }
-    public function put($params=[]) : array {
+    public function put($params=[]) {
         throw new NotImplementedException();
     } 
 
-    public function get($params=[]) : array {
+    public function get($params=[]) {
+        $result = isset($params['id']) ? 
+                $this->db->procedure('GetUser', ['id' => $params['id']]) : 
+                $this->db->procedure('GetAllUsers');
+
         return [
             'rowId' => 'id',    //TODO: don't like so much this solution to responde primary key
-            'data' => isset($params['id']) ? 
-                $this->db->procedure('GetUser', ['id' => $params['id']]) : 
-                $this->db->procedure('GetAllUsers')
+            'data' => isset($params['id']) && count($result) === 1
+                ? $result[0]
+                : $result
         ];
     }
 
@@ -52,7 +56,7 @@ class User extends RouteModel {
         ]; 
     }
 
-    public function delete($params=[]) : array {
+    public function delete($params=[]) {
         if(!isset($userData['token'])){
             return 'No token found';
         }
@@ -66,7 +70,7 @@ class User extends RouteModel {
         ] : 'No token found';
     }
 
-    public function patch($params=[]) : array {
+    public function patch($params=[]) {
         throw new NotImplementedException();
     }
 }

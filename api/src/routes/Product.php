@@ -7,7 +7,7 @@ class Product extends RouteModel{
         parent::__construct();
     }
 
-    public function update($params=[]) : array {
+    public function update($params=[]) {
         throw new NotImplementedException();
     }
     
@@ -15,20 +15,25 @@ class Product extends RouteModel{
         throw new NotImplementedException();
     }
 
-    public function delete($params=[]) : array {
+    public function delete($params=[]) {
         throw new NotImplementedException();
     }
 
-    public function get($params=[]) : array {
+    public function get($params=[]) {
+        $result = isset($params['id'])
+            ? $this->db->procedure('GetProduct', ['id' => $params['id']])
+            : $this->db->procedure('GetAllProducts');
+
+        
         return [
             'rowId' => 'id',    //TODO: don't like so much this solution to responde primary key
-            'data' => isset($params['id']) ? 
-                $this->db->procedure('GetProduct', ['id' => $params['id']]) : 
-                $this->db->procedure('GetAllProducts')
+            'data' => isset($params['id']) && count($result) === 1
+                ? $result[0]
+                : $result
         ];
     }
 
-    public function put($params=[]) : array {
+    public function put($params=[]) {
         if(!isset($params['name'])){
             return 'Parameter missing';
         }
@@ -40,7 +45,7 @@ class Product extends RouteModel{
         ];
     }
 
-    public function patch($params=[]) : array {
+    public function patch($params=[]) {
         throw new NotImplementedException();
     }
 }

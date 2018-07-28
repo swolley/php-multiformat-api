@@ -152,7 +152,7 @@
                 headers: new Headers({
                     //'Accept': 'text/html',
                     //'Accept': 'application/json',
-                    'Authentication': 'Bearer ' + sessionStorage.getItem('token')
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 })
             })
             	.then(response => {
@@ -175,7 +175,7 @@
                 headers: new Headers({
                     //'Accept': 'text/html',
                     //'Accept': 'application/json',
-                    'Authentication': 'Bearer ' + sessionStorage.getItem('token')
+                    'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                 })
             })
             	.then(response => {
@@ -238,7 +238,7 @@
                 fetch(apiUrl.user, {
                     method: 'DELETE',
                     headers: new Headers({
-                        'Authentication': 'Bearer ' + sessionStorage.getItem('token')
+                        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
                     }),
                     body: JSON.stringify({
                         token
@@ -268,7 +268,7 @@
                 headers: new Headers({
                     //'Accept': 'text/html',
                     //'Accept': 'application/json',
-                    'Authentication': sessionStorage.getItem('token')
+                    'Authorization': sessionStorage.getItem('token')
                 })
             })
             	.then(response => {

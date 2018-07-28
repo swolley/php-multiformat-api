@@ -1,6 +1,6 @@
 <?php
 //errors and debug
-define('DEBUG_MODE', true);                         //set true during debug else false
+define('DEBUG_MODE', TRUE);                         //set true during debug else false
 
 error_reporting(DEBUG_MODE ? E_ALL : NULL);
 ini_set('display_errors', DEBUG_MODE ? 1 : 0);
@@ -17,10 +17,13 @@ define('CORE', __DIR__ . '/src/core/');
 define('ROUTES', __DIR__ . '/src/routes/');
 define('WEB', __DIR__ . '/../web/');
 
-//Tokens
-define('KEY', 'base64_encoded_key');                //change here
-define('SERVERNAME', 'server_name');                //change here
+//Auth
+define('AUTH_METHOD', 'Bearer');    //set 'Bearer' or Basic
 
+if(AUTH_METHOD === 'Bearer'){
+    define('KEY', 'base64_encoded_string');    //change here if Bearer method
+    define('SERVERNAME', 'server_name');       //change here if Bearer method
+}
 //exlusion method for authentications in format array(request=>array(methods)
 //if in array can do request withoud auth
 /*DEFAULT: 
