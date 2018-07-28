@@ -31,7 +31,7 @@ class User extends RouteModel {
 
     public function post($params=[]) {
         //check if user exists
-        if(strlen($params['email']) === 0 || strlen($params['password']) === 0){
+        if(strlen($params['email']) === 0 || !filter_var($params['email'], FILTER_VALIDATE_EMAIL) || strlen($params['password']) === 0){
             return 'no parameters';
         }
 

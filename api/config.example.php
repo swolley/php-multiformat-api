@@ -13,6 +13,7 @@ define('DB_USER', 'dbuser');                        //change here
 define('DB_PASS', 'dbpassword');                    //change here
 
 //App
+define('API_URL', 'phpApi/api');
 define('CORE', __DIR__ . '/src/core/');
 define('ROUTES', __DIR__ . '/src/routes/');
 define('WEB', __DIR__ . '/../web/');
@@ -24,6 +25,7 @@ if(AUTH_METHOD === 'Bearer'){
     define('KEY', 'base64_encoded_string');    //change here if Bearer method
     define('SERVERNAME', 'server_name');       //change here if Bearer method
 }
+
 //exlusion method for authentications in format array(request=>array(methods)
 //if in array can do request withoud auth
 /*DEFAULT: 

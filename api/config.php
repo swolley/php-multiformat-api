@@ -13,6 +13,7 @@ define('DB_USER', 'root');                          //change here
 define('DB_PASS', 'test');                          //change here
 
 //App
+define('API_URL', 'phpApi/api');
 define('CORE', __DIR__ . '/src/core/');
 define('ROUTES', __DIR__ . '/src/routes/');
 define('WEB', __DIR__ . '/../web/');

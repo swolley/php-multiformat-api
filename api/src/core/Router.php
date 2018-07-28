@@ -10,12 +10,12 @@ class Router{
         $this->handleRequest($this->parseRequest());
     }
 
-    private function extractHeaderElements(array &$headers, array $elementKey) {
+    private function extractElements(array &$list, array $elementKey) {
         $values = [];
         foreach($elementKey as $key){
-            if(isset($headers[$key])){
-                array_push($values, $headers[$key]);
-                unset($headers[$key]);
+            if(isset($list[$key])){
+                array_push($values, $list[$key]);
+                unset($list[$key]);
             }
         }
 
@@ -26,24 +26,27 @@ class Router{
             : NULL;
     }
 
-    private function groupParameters() : array {
-        $bodyParameters = json_decode(file_get_contents('php://input'), TRUE); //body content
-        return $bodyParameters !== NULL 
-            ? array_merge($_GET, $bodyParameters)
-            : $_GET;
+    private function groupParameters($pathId = null) : array {
+        $bodyParameters = json_decode(file_get_contents('php://input'), TRUE) ?:[]; //body content
+        
+        if(!is_null($pathId)){
+            $bodyParameters['id'] = $pathId;
+        }
+        
+        return array_merge($_GET, $bodyParameters);
     }
 
     private function parseRequest() : array {
         $headers = apache_request_headers();
-        $requestUri = array_diff(explode('/', $_SERVER['HTTP_HOST'] . explode('?', $_SERVER['REQUEST_URI'], 2)[0]), [""]);
+        $requestUri = array_diff(explode('/', explode('?', str_replace(API_URL, "", $_SERVER['REQUEST_URI']), 2)[0]), [""]);
 
         return [
             'method' => strtolower($_SERVER['REQUEST_METHOD']), //http verb
-            'request' => end($requestUri),  //resource path //TODO: to be fixed
-            'token' => $this->extractHeaderElements($headers, ['Authorization']),   //auth token
-            'format' => $this->extractHeaderElements($headers, ['Accept']),    //result format (json, html)
-            'filters' => $this->extractHeaderElements($headers, ['X-Result', 'X-Total', 'X-From']),  //filters for pagination,
-            'parameters' => $this->groupParameters(),   //joined get and body parameters
+            'request' => $this->extractElements($requestUri, [array_keys($requestUri)[0]]),  //resource path
+            'token' => $this->extractElements($headers, ['Authorization']),   //auth token
+            'format' => $this->extractElements($headers, ['Accept']),    //result format (json, html)
+            'filters' => $this->extractElements($headers, ['X-Result', 'X-Total', 'X-From']),  //filters for pagination,
+            'parameters' => $this->groupParameters(end($requestUri)),   //joined get, body parameters and optional id at the end of uri
             'others' => $headers    //remaining header's elements
         ];
     }

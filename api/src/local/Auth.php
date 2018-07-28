@@ -11,12 +11,17 @@ class Auth extends AuthModel {
     }
 
     protected function getFromToken(string &$jwt) : array {
-        /*return $this->db->procedure("GetUserByToken", [
-            "token" => $token
-        ]);*/
-        $secret = base64_decode(KEY);
-        $user = (array)JWT::decode($jwt, $secret, array('HS256'));
-        return $user['data'];
+        try{
+            /*return $this->db->procedure("GetUserByToken", [
+                "token" => $token
+            ]);*/
+            $secret = base64_decode(KEY);
+            $user = (array)JWT::decode($jwt, $secret, array('HS256'));
+            return $user['data'];
+        } catch(Exception $ex) {
+            throw new BadMethodCallException();
+            
+        }
     }
 
     public static function createToken(array &$user) : string {
