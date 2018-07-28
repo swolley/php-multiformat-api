@@ -25,4 +25,7 @@ index.html is only a single page test file;
 3) stored procedure parameters for mysal database need to be passed in same order as the defined procedure;
 
 ## credits
-implemented use of jwt tokens from firebase/php-jwt repository (forked from the original luciferous/jwt repository);
+implemented use of jwt tokens from [firebase/php-jwt](https://github.com/firebase/php-jwt) repository (forked from the original [luciferous/jwt](https://github.com/luciferous/jwt) repository);
+
+##license
+[3-Clause BSD](https://opensource.org/licenses/BSD-3-Clause);
