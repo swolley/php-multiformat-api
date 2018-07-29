@@ -1,6 +1,6 @@
 <?php
 if(!file_exists('./config.php')){
-    exit('No config file found.' /*Rename config.php.example into config.php and fill db infos'*/);
+    exit('No config file found.');   //Rename config.php.example into config.php and fill db infos
 }
 
 //load config
@@ -11,4 +11,9 @@ require_once('./vendor/autoload.php');
 require_once('./src/local/bootstrap.php');
 
 //launch main Router
-new Api\Core\Router;
+$router = Api\Core\Router::getInstance();
+$router->handleRequest();
+
+//$memory = round(memory_get_usage() / 1000000, 2). " MB";
+
+$router->send();

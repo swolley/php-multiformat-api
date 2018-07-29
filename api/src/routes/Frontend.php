@@ -9,9 +9,14 @@ class Frontend extends RouteModel {
 
     public function get($params=[]) {
         return [
-            'data' => array_reduce(function($file){
-                return strtolower(strstr($file, ".php", TRUE));
-            }, array_diff(scandir(ROUTES), ['.', '..', 'Frontend']))
+            'data' => array_values(array_map(function($file){
+                $route = strtolower(strstr($file, ".php", TRUE));
+                return [
+                    "name" => "",
+                    "route" => $route,
+                    "uri" => $_SERVER['SERVER_NAME'] . '/api/' . $route
+                ];
+            }, array_diff(scandir(ROUTES), ['.', '..', 'Frontend.php'])))
         ];
     }
 

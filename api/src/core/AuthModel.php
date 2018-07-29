@@ -10,7 +10,7 @@ abstract class AuthModel {
 
     public function authorizeRequest(array $request) : bool {
 
-        return isset($request['token'], $request['request'], $request['method']) ? $this->canDoRequest($request) : false;
+        return isset($request['token'], $request['resource'], $request['method']) ? $this->canDoRequest($request) : false;
     }
 
     protected function canDoRequest(array &$request) : bool {
@@ -24,7 +24,7 @@ abstract class AuthModel {
         //parse token using method defined by user
         $user = $this->getFromToken($authData[1]);
         if(isset($user)){
-            $permission = "{$request['method']}_{$request['request']}";
+            $permission = "{$request['method']}_{$request['resource']}";
             return in_array($permission, json_decode($user[2]));
         }
 

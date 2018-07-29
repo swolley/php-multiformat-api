@@ -14,12 +14,12 @@ class Response{
     }
     
     private static function json(&$responseData, int $status = HttpStatusCode::OK) {
-        header('Content-Type: application/json', TRUE, $status);
-        return json_encode($responseData);
+        header('Content-Type: application/json; charset=utf-8', TRUE, $status);
+        return json_encode($responseData, JSON_NUMERIC_CHECK);
     }
 
     private static function render(array &$data, string &$page) {
-        header('Content-Type: text/html');
+        header('Content-Type: text/html; charset=utf-8');
         ob_start();
         include (file_exists(WEB."${page}.php") ? WEB."${page}.php" : WEB.'error.php');
         $response = ob_get_contents();
