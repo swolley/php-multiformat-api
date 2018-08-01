@@ -7,8 +7,8 @@ ini_set('display_errors', DEBUG_MODE ? 1 : 0);
 
 //Database
 define('DB_TYPE', 'mysql');                         //change here
-define('DB_HOST', '192.168.1.8');                   //change here
-define('DB_NAME', 'api');                           //change here
+define('DB_HOST', 'localhost');                   //change here
+define('DB_NAME', 'temp');                           //change here
 define('DB_USER', 'root');                          //change here
 define('DB_PASS', 'test');                          //change here
 define('DB_CHARSET', 'utf8');                       //change here
@@ -28,6 +28,7 @@ if(AUTH_METHOD === 'Bearer'){
 }
 
 //System
+define("HAL_RESP", true);                           //set true tu enable json+hal responses
 date_default_timezone_set('UTC');
 
 

@@ -99,7 +99,7 @@ final class Router{
     
     public function send(){
         exit(isset($this->response['data'])
-            ? (Response::ok($this->response, $this->request['responseFormat'], "{$this->request['method']}_{$this->request['resource']}"))
+            ? (Response::ok($this->response, $this->request))
             : Response::error($this->response)); 
     }
 

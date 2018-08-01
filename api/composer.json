@@ -2,7 +2,8 @@
     "name": "swolley/php-multiformat-api",
     "description": "",
     "require": {
-        "firebase/php-jwt": "^5.0"
+        "firebase/php-jwt": "^5.0",
+        "brandonlamb/php-hal": "^1.0"
     },
     "license": "BSD",
     "authors": [

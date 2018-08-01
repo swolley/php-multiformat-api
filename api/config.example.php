@@ -28,6 +28,7 @@ if(AUTH_METHOD === 'Bearer'){
 }
 
 //System
+define("HAL_RESP", true);
 date_default_timezone_set('UTC');
 
 
