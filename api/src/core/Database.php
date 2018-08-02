@@ -4,14 +4,14 @@ use \PDO;
 
 class Database extends PDO {
     public function __construct(){
-        $initArr = array(\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '+00:00'");
-        parent::__construct(DB_TYPE.':host='.DB_HOST.';dbname='.DB_NAME.';charset='.DB_CHARSET, DB_USER, DB_PASS, $initArr);
+        $init_arr = array(\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '+00:00'");
+        parent::__construct(DB_TYPE.':host='.DB_HOST.';dbname='.DB_NAME.';charset='.DB_CHARSET, DB_USER, DB_PASS, $init_arr);
         if(DEBUG_MODE){
             parent::setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
     }
 
-    public function select($query, $params = array(), $fetchMode = PDO::FETCH_ASSOC){
+    public function select($query, $params = array(), $fetch_mode = PDO::FETCH_ASSOC){
         try{
             ksort($params);
             $st = $this->prepare($query);
@@ -20,7 +20,7 @@ class Database extends PDO {
             }
             $st->execute();
 
-            return $st->fetchAll($fetchMode);
+            return $st->fetchAll($fetch_mode);
         }catch(Exception $e){
             return $e->getMessage();
         }
@@ -38,10 +38,10 @@ class Database extends PDO {
                 $st->bindValue(":$key", $value);
             }
             $st->execute();
-            $insertedId = $this->lastInsertId();
+            $inserted_id = $this->lastInsertId();
             $this->commit();
 
-            return $insertedId;
+            return $inserted_id;
         }catch(Exception $e){
             return $e->getMessage();
         }
@@ -54,7 +54,7 @@ class Database extends PDO {
             foreach($params as $key=>$value){
                 $values .= "`$key`=:$keys";
             }
-            $fieldDetails = rtrim($fieldDetails, ',');
+            $field_details = rtrim($field_details, ',');
 
             $st = $this->prepare("UPDATE $table SET $values WHERE $where");
             foreach($params as $key=>$value){
@@ -81,22 +81,22 @@ class Database extends PDO {
         }
     }
 
-    public function procedure($name, $params = [], $fetchMode = PDO::FETCH_ASSOC){
+    public function procedure($name, $params = [], $fetch_mode = PDO::FETCH_ASSOC){
         try{
             //ksort($params);
-            $procedureParams = '';
+            $procedure_params = '';
             foreach ($params as $key => $value) {
-                $procedureParams .= ":$key,";
+                $procedure_params .= ":$key,";
             }
-            $procedureParams = rtrim($procedureParams, ',');
+            $procedure_params = rtrim($procedure_params, ',');
 
-            $st = $this->prepare("CALL $name($procedureParams)");
+            $st = $this->prepare("CALL $name($procedure_params)");
             foreach($params as $key=>$value){
                 $st->bindValue(":$key", $value);
             }
             $st->execute();
             
-            return $st->fetchAll($fetchMode);
+            return $st->fetchAll($fetch_mode);
         }catch(Exception $e){
             return $e->getMessage();
         }

@@ -31,7 +31,7 @@ class HttpStatusCode {
     const LENGTH_REQUIRED = 411;
     const PRECONDITION_FAILED = 412;
     const REQUEST_ENTITY_TOO_LARGE = 413;
-    const REQUESTURI_TOO_LARGE = 414;
+    const request_uri_TOO_LARGE = 414;
     const UNSUPPORTED_MEDIA_TYPE = 415;
     const REQUESTED_RANGE_NOT_SATISFIABLE = 416;
     const EXPECTATION_FAILED = 417;

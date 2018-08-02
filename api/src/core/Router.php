@@ -11,7 +11,7 @@ final class Router{
     private $response;
 
     public static function getInstance(){
-        if (!isset(self::$instance)) {
+        if ( !isset(self::$instance) ) {
             $class = __CLASS__;
             self::$instance = new $class;
         }
@@ -22,90 +22,48 @@ final class Router{
     private function __construct(/*$method, $request, $token, $format = 'application/json', $parameters = []*/){
     }
 
-    private function extractElements(array &$list, array $elementKey) {
-        $values = [];
-        foreach($elementKey as $key){
-            if(isset($list[$key])){
-                array_push($values, $list[$key]);
-                unset($list[$key]);
-            }
-        }
-
-        return $values !== []
-            ? (count($values) === 1
-                ? $values[0]
-                : $values)
-            : NULL;
-    }
-
-    private function groupParameters($pathId = null) : array {
-        $bodyParameters = json_decode(file_get_contents('php://input'), TRUE) ?:[]; //body content
-        
-        if(!is_null($pathId)){
-            $bodyParameters['id'] = $pathId;
-        }
-        
-        return array_merge($_GET, $bodyParameters);
-    }
-
-    private function parseRequest() {
-        $headers = apache_request_headers();
-        $requestUri = array_diff(explode('/', explode('?', str_replace(API_URL, "", $_SERVER['REQUEST_URI']), 2)[0]), ["", "api"]);
-
-        $this->request = [
-            'method' => strtolower($_SERVER['REQUEST_METHOD']), //http verb
-            'resource' => $this->extractElements($requestUri, [array_keys($requestUri)[0]]),  //resource path
-            'token' => $this->extractElements($headers, ['Authorization']),   //auth token
-            'responseFormat' => $this->extractElements($headers, ['Accept']),    //result format (json, html)
-            'filters' => $this->extractElements($headers, ['X-Result', 'X-Total', 'X-From']),  //filters for pagination,
-            'parameters' => $this->groupParameters(!empty($requestUri) ? end($requestUri) : null),   //joined get, body parameters and optional id at the end of uri
-            'others' => $headers    //remaining header's elements
-        ];
-    }
-
     public function handleRequest() {
-        $this->parseRequest();
-        //extract($this->request, EXTR_REFS); //extracts method's variables
+        //create new request and response every time?
+        $this->request = new Request();
+        $this->response = new Response();
+
         //check user data and permission level
-        if($this->needsAuthentication()){
-            if(!(new Auth())->authorizeRequest([
-                    'token' => $this->request['token'], 
-                    'resource' => $this->request['resource'], 
-                    'method' => $this->request['method']
-                ])){
-                Response::error('user not authorized', HttpStatusCode::FORBIDDEN);
+        if( $this->needsAuthentication() ){
+            if( !(new Auth())->authorizeRequest($this->request) ){
+                $this->response->error('user not authorized', HttpStatusCode::FORBIDDEN);
             }
         }
 
         //check request and action
-        if(!isset($this->request['resource'])){
-            Response::error('No resource specified', HttpStatusCode::BAD_REQUEST);
+        if( $this->request->getResource() === null ){
+            $this->response->error('No resource specified', HttpStatusCode::BAD_REQUEST);
         }
-        $controllerFullName = 'Api\\Routes\\'.ucfirst($this->request['resource']);
-        $controller = new $controllerFullName;
-        $method = $this->request['method'];
+        $controller_full_name = 'Api\\Routes\\'.ucfirst($this->request->getResource());
+        $controller = new $controller_full_name;
+        $method = $this->request->getMethod();
 
-        if(!method_exists($controller, $method)){
-            Response::error('No action found', HttpStatusCode::NOT_FOUND);
+        if( !method_exists($controller, $method) ){
+            $this->response->error('No action found', HttpStatusCode::NOT_FOUND);
         }
         
         //make request and return data
-        $this->response = $controller->$method($this->request['parameters']);
+        $this->response->setContent($controller->$method($this->request->getParameters()));
 
-        unset($controllerFullName);
+        unset($controller_full_name);
         unset($controller);
         //make response
     }
     
     public function send(){
-        exit(isset($this->response['data'])
-            ? (Response::ok($this->response, $this->request))
-            : Response::error($this->response)); 
+        exit( $this->response->isContent()
+            ? $this->response->ok($this->request)
+            : $this->response->error()
+        ); 
     }
 
     private function needsAuthentication() : bool {
-        global $excludeFromAuth;    //declared in config.php file
+        global $exclude_from_auth;    //declared in config.php file
 
-        return !(in_array($this->request['resource'], array_keys($excludeFromAuth)) && in_array($this->request['method'], array_keys($excludeFromAuth[$this->request['resource']])));
+        return !(in_array($this->request->getResource(), array_keys($exclude_from_auth)) && in_array($this->request->getMethod(), array_keys($exclude_from_auth[$this->request->getResource()])));
     }
 }

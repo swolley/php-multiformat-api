@@ -28,7 +28,6 @@ if(AUTH_METHOD === 'Bearer'){
 }
 
 //System
-define("HAL_RESP", true);
 date_default_timezone_set('UTC');
 
 
@@ -37,6 +36,6 @@ date_default_timezone_set('UTC');
 /*DEFAULT: 
     ['user' => ['post']] to permit login if no token exists
 */
-$excludeFromAuth = [
+$exclude_from_auth = [
     'user' => ['post']
 ];

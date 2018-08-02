@@ -8,23 +8,23 @@ abstract class AuthModel {
         
     }
 
-    public function authorizeRequest(array $request) : bool {
+    public function authorizeRequest(Request &$request) : bool {
 
-        return isset($request['token'], $request['resource'], $request['method']) ? $this->canDoRequest($request) : false;
+        return $request->getToken() !== null && $request->getResource() !== null && $request->getMethod() !== null ? $this->canDoRequest($request) : false;
     }
 
-    protected function canDoRequest(array &$request) : bool {
-        $authData = explode(" ", $request['token']);
+    protected function canDoRequest(Request &$request) : bool {
+        $auth_data = explode(" ", $request->getToken());
         
-        //authorize only configured auth method
-        if($authData[0] !== ucfirst(AUTH_METHOD)){
+        //authorizes only configured auth method
+        if($auth_data[0] !== ucfirst(AUTH_METHOD)){
             return false;
         }
 
         //parse token using method defined by user
-        $user = $this->getFromToken($authData[1]);
+        $user = $this->getFromToken($auth_data[1]);
         if(isset($user)){
-            $permission = "{$request['method']}_{$request['resource']}";
+            $permission = "{$request->getMethod()}_{$request->getResource()}";
             return in_array($permission, json_decode($user[2]));
         }
 

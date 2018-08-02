@@ -44,10 +44,10 @@ class RouteFactory {
      * always calls parent constructor from inherited classes
      * @return  string  $definition stringified php code of constructor
      **/
-    private static function defineConstructor(ReflectionClass &$inheritedClass) : string {
-        $inheritedConstructor = $inheritedClass->getConstructor();
-        $definition = "\tpublic function __construct(" . static::defineParams($inheritedConstructor) . ') {' . PHP_EOL;
-            $definition .= "\t\tparent::__construct(" . static::defineParams($inheritedConstructor, FALSE) . ');' . PHP_EOL;
+    private static function defineConstructor(ReflectionClass &$inherited_class) : string {
+        $inherited_constructor = $inherited_class->getConstructor();
+        $definition = "\tpublic function __construct(" . static::defineParams($inherited_constructor) . ') {' . PHP_EOL;
+            $definition .= "\t\tparent::__construct(" . static::defineParams($inherited_constructor, FALSE) . ');' . PHP_EOL;
         $definition .= "\t}" . PHP_EOL . PHP_EOL;
 
         return $definition;
@@ -56,14 +56,14 @@ class RouteFactory {
     /**
      * defines all methods contained in the parent class
      * @param   ReflectionClass     $dependenceName     parent class name
-     * @param   integer             $dependenceModifier defines if implementing abstract class or not
+     * @param   integer             $dependence_modifier defines if implementing abstract class or not
      * @return  string                                  stringified php code of parent methods
      **/
-    private static function defineDepencenceMethods(ReflectionClass &$inheritedClass, int $dependenceModifier = 0) :string {
+    private static function defineDepencenceMethods(ReflectionClass &$inherited_class, int $dependence_modifier = 0) :string {
         return array_reduce(
-            $dependenceModifier === ReflectionMethod::IS_ABSTRACT ? 
-                $inheritedClass->getMethods(ReflectionMethod::IS_ABSTRACT) : 
-                $inheritedClass->getMethods(), 
+            $dependence_modifier === ReflectionMethod::IS_ABSTRACT ? 
+                $inherited_class->getMethods(ReflectionMethod::IS_ABSTRACT) : 
+                $inherited_class->getMethods(), 
             function($definition, $method){
                 //defines single method
                 return $definition . static::defineMethod($method);
@@ -76,17 +76,17 @@ class RouteFactory {
      * @return  string              $definition stringified php code of passed method
      **/
     private static function defineMethod(ReflectionMethod &$method) : string {
-        $reflectionMethod = (new ReflectionMethod($method->class, $method->name));
+        $reflection_method = (new ReflectionMethod($method->class, $method->name));
 
         //removes abstract from modifier because implemented
-        $modifiers =  str_replace('abstract ', '', implode(' ', Reflection::getModifierNames($reflectionMethod->getModifiers())));
+        $modifiers =  str_replace('abstract ', '', implode(' ', Reflection::getModifierNames($reflection_method->getModifiers())));
 
         //defines method
         $definition = "\t" . $modifiers . " function {$method->name}(";
             //defines parameters
             $definition .= static::defineParams($method) . ')';
             //appends return type if exists
-            $definition .= $reflectionMethod->hasReturnType() ? " : {$reflectionMethod->getReturnType()} " : ' ';
+            $definition .= $reflection_method->hasReturnType() ? " : {$reflection_method->getReturnType()} " : ' ';
             $definition .= '{' . PHP_EOL;
             //implementes void method
             $definition .= "\t\tthrow new NotImplementedException();" . PHP_EOL;
@@ -98,17 +98,17 @@ class RouteFactory {
     /**
      * defines specified method's parameters list with default values if found
      * @param   ReflectionMethod    $method         parent method
-     * @param   string              $defaultValues  optionally add default values to params if found
+     * @param   string              $default_values  optionally add default values to params if found
      * @return  string                              stringified php code of parameters
      **/
-    private static function defineParams(ReflectionMethod &$method, bool $defaultValues = TRUE) : string {
-        return trim(implode(', ', array_map(function($param) use ($defaultValues) {
+    private static function defineParams(ReflectionMethod &$method, bool $default_values = TRUE) : string {
+        return trim(implode(', ', array_map(function($param) use ($default_values) {
             return implode(' ', [
                 'paramType' => $param->hasType() ? $param->getType() : '',
                 'isPassedByReference' => $param->isPassedByReference() ? '&' : '',
                 'paramName' => '$'.$param->getName(),
                 'paramIsOptional' => $param->isOptional() ? ' = ' : '',
-                'paramDefaultValue' => $defaultValues && $param->isDefaultValueAvailable() ? (static::formatParamDefaultValue($param->getDefaultValue())) : ''
+                'paramDefaultValue' => $default_values && $param->isDefaultValueAvailable() ? (static::formatParamDefaultValue($param->getDefaultValue())) : ''
             ]);
         }, (new ReflectionMethod($method->class, $method->name))->getParameters())));
     }
