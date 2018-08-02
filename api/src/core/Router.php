@@ -10,7 +10,11 @@ final class Router{
     private $request;
     private $response;
 
-    public static function getInstance(){
+    /**
+     * singleton handler returns instance of Router if already exists else create new one
+     * @return  Router                  Router instance
+     */
+    public static function getInstance() : Router{
         if ( !isset(self::$instance) ) {
             $class = __CLASS__;
             self::$instance = new $class;
@@ -22,6 +26,9 @@ final class Router{
     private function __construct(/*$method, $request, $token, $format = 'application/json', $parameters = []*/){
     }
 
+    /**
+     * main request's handler called every time a request is catched
+     */
     public function handleRequest() {
         //create new request and response every time?
         $this->request = new Request();
@@ -46,7 +53,7 @@ final class Router{
             $this->response->error('No action found', HttpStatusCode::NOT_FOUND);
         }
         
-        //make request and return data
+        //makes request and returns data
         $this->response->setContent($controller->$method($this->request->getParameters()));
 
         unset($controller_full_name);
@@ -54,6 +61,9 @@ final class Router{
         //make response
     }
     
+    /**
+     * sends corresponding response type
+     */
     public function send(){
         exit( $this->response->isContent()
             ? $this->response->ok($this->request)
@@ -61,6 +71,9 @@ final class Router{
         ); 
     }
 
+    /**
+     * check from excluded requests in main config to understand if request neeeds to be authenticated 
+     */
     private function needsAuthentication() : bool {
         global $exclude_from_auth;    //declared in config.php file
 

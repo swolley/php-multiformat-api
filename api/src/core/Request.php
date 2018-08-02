@@ -2,17 +2,19 @@
 namespace Api\Core;
 
 class Request {
-    private $method;
-    private $resource;
-    private $token;
-    private $responseFormat;
-    private $filters;
-    private $parameters;
-    private $others;    //temporary name
+    private $method;            //hhtp verb
+    private $resource;          //resource path
+    private $token;             //auth token
+    private $responseFormat;    //requested result format (json, html, xml, ecc)
+    private $filters;           //filters for pagination,
+    private $parameters;        //joined get, body parameters and optional id at the end of request's uri
+    private $others;            //temporary name with remainig header tags
 
     public function __construct(){
         $this->parseRequest();
     }
+
+    //only get methods exposed outside the class
 
     public function getMethod(){
         return $this->method;
@@ -42,6 +44,11 @@ class Request {
         return $this->others;
     }
 
+    /**
+     * removes elements from array and returns them
+     * @param   array   $list           reference array
+     * @return  mixed                   requested elements or null
+     */
     private function extractElements(array &$list, array $element_key) {
         $values = [];
         foreach($element_key as $key){
@@ -58,6 +65,11 @@ class Request {
             : NULL;
     }
 
+    /**
+     * groups get and post data and returns them as a unique associative array
+     * @param   mixed   $path_id        (optional) id from path if single element requested
+     * @return  array                   ensemble of all parameters
+     */
     private function groupParameters($path_id = null) : array {
         $body_parameters = json_decode(file_get_contents('php://input'), TRUE) ?:[]; //body content
         
@@ -68,16 +80,19 @@ class Request {
         return array_merge($_GET, $body_parameters);
     }
 
+    /**
+     * parse request's info and passed parameters and sets Request properties
+     */
     private function parseRequest() {
         $headers = apache_request_headers();
         $request_uri = array_diff(explode('/', explode('?', str_replace(API_URL, "", $_SERVER['REQUEST_URI']), 2)[0]), ["", "api"]);
 
-        $this->method = strtolower($_SERVER['REQUEST_METHOD']); //http verb
-        $this->resource = $this->extractElements($request_uri, [array_keys($request_uri)[0]]);  //resource path
-        $this->token = $this->extractElements($headers, ['Authorization']);   //auth token
-        $this->responseFormat = $this->extractElements($headers, ['Accept']);    //result format (json, html, xml, ecc)
-        $this->filters = $this->extractElements($headers, ['X-Result', 'X-Total', 'X-From']);  //filters for pagination,
-        $this->parameters = $this->groupParameters(!empty($request_uri) ? end($request_uri) : null);   //joined get, body parameters and optional id at the end of uri
+        $this->method = strtolower($_SERVER['REQUEST_METHOD']);
+        $this->resource = $this->extractElements($request_uri, [array_keys($request_uri)[0]]);
+        $this->token = $this->extractElements($headers, ['Authorization']);
+        $this->responseFormat = $this->extractElements($headers, ['Accept']);
+        $this->filters = $this->extractElements($headers, ['X-Result', 'X-Total', 'X-From']);
+        $this->parameters = $this->groupParameters(!empty($request_uri) ? end($request_uri) : null);
         $this->others = $headers;    //remaining header's elements
     }
 }

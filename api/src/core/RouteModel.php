@@ -4,6 +4,9 @@ namespace Api\Core;
 abstract class RouteModel implements ICrudable {
     protected $db;
 
+    /**
+     * assign to $db a new instance of Database class
+     */
     public function __construct(){
         $this->db = new Database();
     }

@@ -12,6 +12,8 @@ class Response {
     public function __construct(){
     }
 
+    //getters/setters
+
     public function getContent(){
         return $this->content;
     }
@@ -24,40 +26,63 @@ class Response {
         return $this->content != null;
     }
 
-    public function ok(Request &$request) {
+    /**
+     * response main method for correctly ended requests
+     * @param   Request     $request        reference array
+     * @param   int         $status         response http status (default is 200)
+     * @return  mixed                       sub-methods contents depending on request's Accept tag (default is json)
+     */
+    public function ok(Request &$request, int $status = HttpStatusCode::OK) {
         switch($request->getResponseFormat()) {
             case 'text/html':
-                return static::render("{$request['method']}_{$request['resource']}");
+                return static::render("{$request->getMethod(method)}_{$request->getResource()}");
             case 'text/xml':
             case 'text/hal+xml':
-                return static::xml($request);  
+                return static::xml($request, $status);  
             case 'application/json':
             case 'application/hal+json':
-                return static::json($request);
+            default:
+                return static::json($request, $status);
         }
     }
 
-    public function error(string $msg, int $status = HttpStatusCode::INTERNAL_SERVER_ERROR) {
+    /**
+     * response method for anomalies
+     * @param   string      $msg            error message
+     * @return  int         $status         response error http status (default is 500)
+     */
+    public function error(Request &$request, string $msg, int $status = HttpStatusCode::INTERNAL_SERVER_ERROR) {
         $this->content = $msg;
-        return static::json($status);
+        return static::json($request, $status);
     }
     
-    private function render(string &$page) {
+    /**
+     * injects data into templates if exist and return an html portion of page
+     * @param   string      $view           template name
+     * @return  string      $response       stringed and rendered html contents
+     */
+    private function render(string &$view) {
         header('Content-Type: text/html; charset=utf-8');
         ob_start();
-        include (file_exists(WEB."${page}.php") ? WEB."${page}.php" : WEB.'error.php');
+        include (file_exists(WEB."${view}.php") ? WEB."${view}.php" : WEB.'error.php');
         $response = ob_get_contents();
         ob_end_clean();
 
         return $response;
     }
 
-    private function json(Request &$request, int $status = HttpStatusCode::OK) {
+    /**
+     * parse response data into json and if requested appends HAL data
+     * @param   Request     $request        request infos
+     * @param   int         $status         http response status
+     * @return  string                      json encoded contents
+     */
+    private function json(Request &$request, int $status) {
         if($request->getResponseFormat() === 'application/hal+json'){
             header('Content-Type: application/hal+json; charset=utf-8', TRUE, $status);
             $hal_response = (new Resource())
-                ->setURI("/{$request['resource']}". (isset($request['filter']['id']) ? $request['filter']['id'] : ''))
-                ->setLink($request['resource'], new Link("/{$request['resource']}"))
+                ->setURI("/{$request->getResource()}". (isset($request->getFilters()['id']) ? $request->getFilters()['id'] : ''))
+                ->setLink($request->getResource(), new Link("/{$request->getResource()}"))
                 ->setData($this->content);
 
             $writer = new Hal\JsonWriter(true);
@@ -68,12 +93,18 @@ class Response {
         }
     }
 
-    private function xml(Request &$request) {
+    /**
+     * parse response data into xml and if requested appends HAL data
+     * @param   Request     $request        request infos
+     * @param   int         $status         http response status
+     * @return  mixed                       xml encoded contents
+     */
+    private function xml(Request &$request, int $status) {
         if($request['response_format'] === 'text/hal+xml'){
-            header('Content-Type: text/hal+xml; charset=utf-8', TRUE);
+            header('Content-Type: text/hal+xml; charset=utf-8', TRUE, $status);
             $hal_response = (new Resource())
-                ->setURI("/{$request['resource']}". (isset($request['filter']['id']) ? $request['filter']['id'] : ''))
-                ->setLink($request['resource'], new Link("/{$request['resource']}"))
+                ->setURI("/{$request->getResource()}". (isset($request->getFilters()['id']) ? $request->getFilters()['id'] : ''))
+                ->setLink($request->getResource(), new Link("/{$request->getResource()}"))
                 ->setData($this->content);
 
             $writer = new Hal\XmlWriter(true);
@@ -89,6 +120,11 @@ class Response {
         
     }
 
+    /**
+     * recoursive converter to xml
+     * @param   mixed       $data           sub-data to convert
+     * @param   mixed       $xml_data       main xml object
+     */
     private function array_to_xml( $data, &$xml_data ) {
         foreach( $data as $key => $value ) {
             if( is_numeric($key) ){

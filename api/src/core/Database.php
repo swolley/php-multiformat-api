@@ -3,6 +3,9 @@ namespace Api\Core;
 use \PDO;
 
 class Database extends PDO {
+    /**
+     * opens connection with db dureing object creation and set attributes depending on main configurations
+     */
     public function __construct(){
         $init_arr = array(\PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '+00:00'");
         parent::__construct(DB_TYPE.':host='.DB_HOST.';dbname='.DB_NAME.';charset='.DB_CHARSET, DB_USER, DB_PASS, $init_arr);
@@ -11,7 +14,14 @@ class Database extends PDO {
         }
     }
 
-    public function select($query, $params = array(), $fetch_mode = PDO::FETCH_ASSOC){
+    /**
+     * execute select query
+     * @param   string  $query          query text with placeholders
+     * @param   array   $params         assoc array with placeholder's name and relative values
+     * @param   int     $fetch_mode     (optional) PDO fetch mode. default = associative array
+     * @return  mixed                   response array or error message
+     */
+    public function select(string $query, $params = [], $fetch_mode = PDO::FETCH_ASSOC){
         try{
             ksort($params);
             $st = $this->prepare($query);
@@ -26,6 +36,12 @@ class Database extends PDO {
         }
     }
 
+    /**
+     * execute insert query
+     * @param   string  $table          table name
+     * @param   array   $params         assoc array with placeholder's name and relative values
+     * @return  mixed                   new row id or error message
+     */
     public function insert($table, $params){
         try{
             ksort($params);
@@ -47,6 +63,13 @@ class Database extends PDO {
         }
     }
 
+    /**
+     * execute update query. Where is required, no massive update permitted
+     * @param   string  $table          table name
+     * @param   array   $params         assoc array with placeholder's name and relative values
+     * @param   string  $where          where condition. no placeholders permitted
+     * @return  mixed                   correct query execution confirm as boolean or error message
+     */
     public function update($table, $params, $where){
         try{
             ksort($params);
@@ -67,6 +90,13 @@ class Database extends PDO {
         }
     }
 
+    /**
+     * execute delete query. Where is required, no massive delete permitted
+     * @param   string  $table          table name
+     * @param   string  $where          where condition with placeholders
+     * @param   array   $params         assoc array with placeholder's name and relative values for where condition
+     * @return  mixed                   correct query execution confirm as boolean or error message
+     */
     public function delete($table, $where, $params){
         try{
             ksort($params);
@@ -81,6 +111,13 @@ class Database extends PDO {
         }
     }
 
+    /**
+     * execute stored procedure
+     * @param   string  $name           stored procedure name
+     * @param   array   $params         (optional) assoc array with paramter's names and relative values
+     * @param   int     $fetch_mode     (optional) PDO fetch mode. default = associative array
+     * @return  mixed                   stored procedure result or error message
+     */
     public function procedure($name, $params = [], $fetch_mode = PDO::FETCH_ASSOC){
         try{
             //ksort($params);

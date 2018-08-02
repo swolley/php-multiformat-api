@@ -17,7 +17,7 @@ define('DB_CHARSET', 'utf8');                       //change here
 define('API_URL', 'phpApi/api');
 define('CORE', __DIR__ . '/src/core/');
 define('ROUTES', __DIR__ . '/src/routes/');
-define('WEB', __DIR__ . '/../web/');
+define('WEB', __DIR__ . '/src/web/');
 
 //Auth
 define('AUTH_METHOD', 'Bearer');                    //set 'Bearer' (jwt libraries already installed) or 'Basic' (credentials)
