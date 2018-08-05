@@ -19,7 +19,9 @@ class RouteFactory {
         
         //namespace and uses
         $definition = 'namespace Api\Routes;' . PHP_EOL;
-        $definition .= 'use Api\Core\RouteModel;' . PHP_EOL . PHP_EOL;
+        $definition .= 'use Api\Core\RouteModel;' . PHP_EOL;
+        $definition .= 'use Api\Core\Request;' . PHP_EOL;
+        $definition .= 'use Api\Core\HttpStatusCode;' . PHP_EOL . PHP_EOL;
 
         //starts defining class
         $definition .= "class {$name} extends {$extends->name}" . /*(!is_null($implements) ?:"") .*/' {' . PHP_EOL . PHP_EOL;
@@ -89,7 +91,7 @@ class RouteFactory {
             $definition .= $reflection_method->hasReturnType() ? " : {$reflection_method->getReturnType()} " : ' ';
             $definition .= '{' . PHP_EOL;
             //implementes void method
-            $definition .= "\t\tthrow new NotImplementedException();" . PHP_EOL;
+            $definition .= "\t\tthrow new NotImplementedException('No method found', HttpStatusCode::METHOD_NOT_ALLOWED);" . PHP_EOL;
         $definition .= "\t}" . PHP_EOL . PHP_EOL;
 
         return $definition;

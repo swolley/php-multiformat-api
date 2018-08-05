@@ -1,36 +1,38 @@
 <?php
 namespace Api\Local;
 use Api\Core\AuthModel;
+use Api\Core\HttpStatusCode;
 use Firebase\JWT\JWT;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\BeforeValidException;
 
-class Auth extends AuthModel {
-    //private $db;
+final class Auth extends AuthModel {
 
     public function __construct(){
         parent::__construct();
     }
 
-    protected function getFromToken(string &$jwt) : array {
+    public static function getFromToken(string &$jwt) : array {
         try{
-            /*return $this->db->procedure("GetUserByToken", [
-                "token" => $token
-            ]);*/
             $secret = base64_decode(KEY);
             $user = (array)JWT::decode($jwt, $secret, array('HS256'));
             return $user['data'];
+        } catch(ExpiredException $ex) {
+            throw new ExpiredException('Token expired', HttpStatusCode::UNHAUTORIZED);
+        } catch (BeforeValidException $ex) {
+            throw new BeforeValidException($ex->getMessage(), HttpStatusCode::UNHAUTORIZED);
         } catch(Exception $ex) {
-            throw new BadMethodCallException();
-            
+            throw new \BadMethodCallException('Missing parameters', HttpStatusCode::BAD_REQUEST);
         }
     }
 
-    public static function createToken(array &$user) : string {
+    public function createToken(array &$user, int $lifeTime = 0) : string {
         $iat = time();
         $secret = base64_decode(KEY);
         $data = [
             'iss' => SERVERNAME,
             'iat' => $iat,
-            'nbf' => $iat,
+            'nbf' => $lifeTime !== 0 ? $iat : $iat + ACCESS_T_EXPIRES,  //if refresh token no needs to uses it before access expires. if access lost, do login
             'jti' => base64_encode(mcrypt_create_iv(32)),
             'data' => [
                 $user['id'],
@@ -39,6 +41,23 @@ class Auth extends AuthModel {
             ]
         ];
 
+        if($lifeTime !== 0){
+            //is access token needs expire date
+            $data['exp'] = $iat + $lifeTime;
+        }
+
         return JWT::encode($data, $secret, 'HS256');
     }
+
+    public function createAccessToken(array &$user) {
+        $accessToken = $this->createToken($user, ACCESS_T_EXPIRES);
+        header("Access-Token: Bearer {$accessToken}");
+    }
+    
+    public function createRefreshToken(array &$user) : string {
+        $refreshToken = $this->createToken($user);
+        header("Refresh-Token: Bearer {$refreshToken}");
+        return $refreshToken;   //returns it because db persist needed
+    }
+
 }

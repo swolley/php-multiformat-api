@@ -12,11 +12,11 @@ abstract class AuthModel {
      * authenticate than calls canDoRequest to authorize (checks permissions)
      * @param   Request $request        request info
      * @return  boolean                 request authenticate and authorized
-     * @link            canDoRequest    checks for permissions after token authentication
+     * @uses            canDoRequest
      */
-    public function authorizeRequest(Request &$request) : bool {
+    public static function authorizeRequest(Request &$request) : bool {
         return $request->getToken() !== null && $request->getResource() !== null && $request->getMethod() !== null 
-            ? $this->canDoRequest($request) 
+            ? static::canDoRequest($request) 
             : false;
     }
 
@@ -24,9 +24,9 @@ abstract class AuthModel {
      * checks user permissions for authorize request
      * @param   Request $request        request info
      * @return  boolean                 request authenticate and authorized
-     * @link            getFromToken    get user info encrypted inside token
+     * @uses            getFromToken
      */
-    protected function canDoRequest(Request &$request) : bool {
+    protected static function canDoRequest(Request &$request) : bool {
         $auth_data = explode(" ", $request->getToken());
         
         //authorizes only configured auth method
@@ -35,7 +35,8 @@ abstract class AuthModel {
         }
 
         //parse token using method defined by user
-        $user = $this->getFromToken($auth_data[1]);
+        
+        $user = static::getFromToken($auth_data[1]);
         if(isset($user)){
             $permission = "{$request->getMethod()}_{$request->getResource()}";
             return in_array($permission, json_decode($user[2]));
@@ -49,12 +50,12 @@ abstract class AuthModel {
      * @param   string  $token          user token in request
      * @return  array                   user data inside token
      */
-    protected abstract function getFromToken(string &$token) : array;
+    public static abstract function getFromToken(string &$token) : array;
 
     /**
      * create new Token
      * @param   array   $user           user info
      * @return  string                  new generated token
      */
-    public static abstract function createToken(array &$user) : string;
+    public abstract function createToken(array &$user) : string;
 }

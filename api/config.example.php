@@ -21,6 +21,7 @@ define('WEB', __DIR__ . '/../web/');
 
 //Auth
 define('AUTH_METHOD', 'Bearer');                    //set 'Bearer' or Basic
+define('ACCESS_T_EXPIRES', 3600);                   //access token lifetime in seconds. set to your preferences.
 
 if(AUTH_METHOD === 'Bearer'){
     define('KEY', 'base64_encoded_string');         //change here if Bearer method

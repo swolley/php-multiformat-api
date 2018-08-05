@@ -1,6 +1,8 @@
 <?php
 namespace Api\Routes;
 use Api\Core\RouteModel;
+use Api\Core\Request;
+use Api\Core\HttpStatusCode;
 use Api\Local\Auth;
 
 class User extends RouteModel {
@@ -9,14 +11,13 @@ class User extends RouteModel {
         parent::__construct();
     }
 
-    public function update($params=[]) {
-        throw new NotImplementedException();
-    }
-    public function put($params=[]) {
-        throw new NotImplementedException();
+    public function put(Request &$request) {
+        throw new NotImplementedException('No method found', HttpStatusCode::METHOD_NOT_ALLOWED);
     } 
 
-    public function get($params=[]) {
+    public function get(Request &$request) {
+        $params = $request->getParameters();
+        
         $result = isset($params['id']) ? 
                 $this->db->procedure('GetUser', ['id' => $params['id']]) : 
                 $this->db->procedure('GetAllUsers');
@@ -29,10 +30,16 @@ class User extends RouteModel {
         ];
     }
 
-    public function post($params=[]) {
+    public function post(Request &$request) {
+        $params = $request->getParameters();
+        
         //check if user exists
+        if(!isset($params['email'], $params['password'])){
+            throw new \BadMethodCallException("Missing parameters", HttpStatusCode::BAD_REQUEST);
+        }
+
         if(strlen($params['email']) === 0 || !filter_var($params['email'], FILTER_VALIDATE_EMAIL) || strlen($params['password']) === 0){
-            return 'no parameters';
+            throw new \InvalidArgumentException("Invalid parameters vaules", HttpStatusCode::BAD_REQUEST);
         }
 
         $user = $this->db->procedure('GetUserByCredentials', [
@@ -44,25 +51,29 @@ class User extends RouteModel {
             return [];
         }
 
-        $token = (new Auth())->createToken($user[0]);
+        $auth = new Auth();
+        $auth::createAccessToken($user[0]);  //sets header, no need to returns it
+        $refreshToken = $auth::createRefreshToken($user[0]);
 
-        /*$result = $this->db->procedure("InsertUserToken", [
+        $this->db->procedure("InsertUserToken", [
             "userId" => $user[0]['id'],
-            "token" => $token
-        ]);*/
+            "token" => $refreshToken
+        ]);
 
         return [
-            'data' => $token
+            'data' => $user
         ]; 
     }
 
-    public function delete($params=[]) {
-        if(!isset($userData['token'])){
-            return 'No token found';
+    public function delete(Request &$request) {
+        $token = $request->getToken();
+        
+        if(!isset($token)){
+            throw new \BadMethodCallException("Missing parameters", HttpStatusCode::BAD_REQUEST);
         }
 
-        $result = $this->db->delete('user_tokens', 'token=:token', [
-            'token' => $userData['token']
+        $result = $this->db->procedure('DeleteUserTokens', [
+            'token' => $token
         ]);
 
         return $result != 0 ? [
@@ -70,7 +81,22 @@ class User extends RouteModel {
         ] : 'No token found';
     }
 
-    public function patch($params=[]) {
-        throw new NotImplementedException();
+    public function patch(Request &$request) {
+        $token = $request->getToken();
+        $auth = new Auth();
+        $userInToken = $auth::getFromToken($token);
+
+        if(!isset($token)){
+            throw new \BadMethodCallException("Missing parameters", HttpStatusCode::BAD_REQUEST);
+        }
+
+        $userInDb = $this->db->procedure("GetUserByToken", [
+            "token" => $token
+        ]);
+        
+        if( count($userInDb) > 0 && $userInDb[0]['id'] === $userInToken['id']) {
+            $auth::createAccessToken($user);  //sets header, no need to returns it
+        }
+
     }
 }

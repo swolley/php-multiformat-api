@@ -15,5 +15,3 @@ $router = Api\Core\Router::getInstance();
 $router->handleRequest();
 
 //$memory = round(memory_get_usage() / 1000000, 2). " MB";
-
-$router->send();

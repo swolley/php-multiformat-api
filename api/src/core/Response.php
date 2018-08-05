@@ -22,7 +22,7 @@ class Response {
         $this->content = $data;
     }
 
-    public function isContent() {
+    public function hasContent() {
         return $this->content != null;
     }
 
@@ -51,8 +51,10 @@ class Response {
      * @param   string      $msg            error message
      * @return  int         $status         response error http status (default is 500)
      */
-    public function error(Request &$request, string $msg, int $status = HttpStatusCode::INTERNAL_SERVER_ERROR) {
-        $this->content = $msg;
+    public function error(Request &$request, \Exception $exc) {
+        $this->content = $exc->getMessage();
+        $status = $exc->getCode();
+        
         return static::json($request, $status);
     }
     

@@ -1,41 +1,40 @@
 <?php
 namespace Api\Core;
+use Api\Core\Request;
 
 interface ICrudable {
     /**
      * method that triggered by GET http verb
-     * @param   array   $params         (optional) assoc array with paramter's names and relative values
+     * @param   Request $request        (optional) assoc array with paramter's names and relative values
      * @return  mixed                   defined by user
      */
-    function get($params=[]);
+    function get(Request &$request);
+    
     /**
      * method that triggered by POST http verb
-     * @param   array   $params         (optional) assoc array with paramter's names and relative values
+     * @param   Request $request        (optional) assoc array with paramter's names and relative values
      * @return  mixed                   defined by user
      */
-    function post($params=[]);
+    function post(Request &$request);
+    
     /**
      * method that triggered by DELETE http verb
-     * @param   array   $params         (optional) assoc array with paramter's names and relative values
+     * @param   Request $request        (optional) assoc array with paramter's names and relative values
      * @return  mixed                   defined by user
      */
-    function delete($params=[]);
+    function delete(Request &$request);
+    
     /**
      * method that triggered by UPDATE http verb
-     * @param   array   $params         (optional) assoc array with paramter's names and relative values
+     * @param   Request $request        (optional) assoc array with paramter's names and relative values
      * @return  mixed                   defined by user
      */
-    function update($params=[]);
-    /**
-     * method that triggered by PUT http verb
-     * @param   array   $params         (optional) assoc array with paramter's names and relative values
-     * @return  mixed                   defined by user
-     */
-    function put($params=[]);
+    function put(Request &$request);
+    
     /**
      * method that triggered by PATCH http verb
-     * @param   array   $params         (optional) assoc array with paramter's names and relative values
+     * @param   Request $request        (optional) assoc array with paramter's names and relative values
      * @return  mixed                   defined by user
      */
-    function patch($params=[]);
+    function patch(Request &$request);
 }

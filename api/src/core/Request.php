@@ -1,11 +1,13 @@
 <?php
 namespace Api\Core;
+use Api\Core\HttpStatusCode;
 
 class Request {
     private $method;            //hhtp verb
     private $resource;          //resource path
     private $token;             //auth token
     private $responseFormat;    //requested result format (json, html, xml, ecc)
+    private $requestFormat;     //sendend format (json, html, xml, ecc)
     private $filters;           //filters for pagination,
     private $parameters;        //joined get, body parameters and optional id at the end of request's uri
     private $others;            //temporary name with remainig header tags
@@ -30,6 +32,10 @@ class Request {
 
     public function getResponseFormat(){
         return $this->responseFormat;
+    }
+
+    public function getRequestFormat(){
+        return $this->requestFormat;
     }
 
     public function getFilters(){
@@ -85,12 +91,13 @@ class Request {
      */
     private function parseRequest() {
         $headers = apache_request_headers();
-        $request_uri = array_diff(explode('/', explode('?', str_replace(API_URL, "", $_SERVER['REQUEST_URI']), 2)[0]), ["", "api"]);
+        $request_uri = array_diff(explode('/', explode('?', str_replace(API_URL, '', $_SERVER['REQUEST_URI']), 2)[0]), ['', 'api']);
 
         $this->method = strtolower($_SERVER['REQUEST_METHOD']);
-        $this->resource = $this->extractElements($request_uri, [array_keys($request_uri)[0]]);
+        $this->resource = !empty($request_uri) ? $this->extractElements($request_uri, [array_keys($request_uri)[0]]) : null;
         $this->token = $this->extractElements($headers, ['Authorization']);
         $this->responseFormat = $this->extractElements($headers, ['Accept']);
+        $this->requestFormat = $this->extractElements($headers, ['Content-Type']);
         $this->filters = $this->extractElements($headers, ['X-Result', 'X-Total', 'X-From']);
         $this->parameters = $this->groupParameters(!empty($request_uri) ? end($request_uri) : null);
         $this->others = $headers;    //remaining header's elements
