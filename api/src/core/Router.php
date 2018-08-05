@@ -61,9 +61,13 @@ final class Router{
 
             unset($controller_full_name);
             unset($controller);
+            unset($method);
+
             //make response
             if($this->response->hasContent()){
                 exit( $this->response->ok($this->request));
+            } else {
+                throw new \Exception("Internal Server Error", HttpStatusCode::INTERNAL_SERVER_ERROR);
             }
         } catch (\Exception $ex) {
             exit($this->response->error($this->request, $ex));

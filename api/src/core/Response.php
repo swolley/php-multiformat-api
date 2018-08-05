@@ -102,7 +102,7 @@ class Response {
      * @return  mixed                       xml encoded contents
      */
     private function xml(Request &$request, int $status) {
-        if($request['response_format'] === 'text/hal+xml'){
+        if($request->getResponseFormat() === 'text/hal+xml'){
             header('Content-Type: text/hal+xml; charset=utf-8', TRUE, $status);
             $hal_response = (new Resource())
                 ->setURI("/{$request->getResource()}". (isset($request->getFilters()['id']) ? $request->getFilters()['id'] : ''))

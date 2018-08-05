@@ -7,8 +7,8 @@ class Request {
     private $resource;          //resource path
     private $token;             //auth token
     private $responseFormat;    //requested result format (json, html, xml, ecc)
-    private $requestFormat;     //sendend format (json, html, xml, ecc)
-    private $filters;           //filters for pagination,
+    private $requestFormat;     //sendend format (json, html, xml, etc)
+    private $filters;           //filters for pagination, etc,
     private $parameters;        //joined get, body parameters and optional id at the end of request's uri
     private $others;            //temporary name with remainig header tags
 
@@ -77,7 +77,11 @@ class Request {
      * @return  array                   ensemble of all parameters
      */
     private function groupParameters($path_id = null) : array {
-        $body_parameters = json_decode(file_get_contents('php://input'), TRUE) ?:[]; //body content
+        $body_parameters = $this->requestFormat === 'application/json'
+            ? file_get_contents('php://input') 
+            : json_encode(simplexml_load_string(file_get_contents('php://input'))); //body content
+        
+        $body_parameters = json_decode($body_parameters,TRUE) ?: [];
         
         if(!is_null($path_id)){
             $body_parameters['id'] = $path_id;
