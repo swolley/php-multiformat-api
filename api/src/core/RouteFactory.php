@@ -33,7 +33,7 @@ class RouteFactory {
             $definition .= static::defineDepencenceMethods($extends, ReflectionMethod::IS_ABSTRACT);
 
             //interface methods
-            /*if(!is_null($implements)) {
+            /*if( !is_null($implements)) {
                 $definition .= static::defineDepencenceMethods($implements);
             }*/
     
@@ -66,7 +66,7 @@ class RouteFactory {
             $dependence_modifier === ReflectionMethod::IS_ABSTRACT ? 
                 $inherited_class->getMethods(ReflectionMethod::IS_ABSTRACT) : 
                 $inherited_class->getMethods(), 
-            function($definition, $method){
+            function($definition, $method ) {
                 //defines single method
                 return $definition . static::defineMethod($method);
             }, "");

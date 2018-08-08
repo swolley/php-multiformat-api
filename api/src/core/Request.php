@@ -1,52 +1,77 @@
 <?php
 namespace Api\Core;
 use Api\Core\HttpStatusCode;
+use Api\Core\Response;
 
 class Request {
-    private $method;            //hhtp verb
-    private $resource;          //resource path
-    private $token;             //auth token
-    private $responseFormat;    //requested result format (json, html, xml, ecc)
-    private $requestFormat;     //sendend format (json, html, xml, etc)
-    private $filters;           //filters for pagination, etc,
-    private $parameters;        //joined get, body parameters and optional id at the end of request's uri
-    private $others;            //temporary name with remainig header tags
+    /**
+     * request http verb
+     */
+    private $method;
+    /**
+     * route class name
+     */
+    private $resource;
+    /**
+     * auth token
+     */
+    private $token;
+    /**
+     * response format (json, html, xml, ecc)
+     */
+    private $responseFormat;
+    /**
+     * request format (json, html, xml, etc)
+     */
+    private $requestFormat;
+    /**
+     * filters for pagination, etc
+     */
+    private $filters;
+    /**
+     * joined get, body parameters and optional id at the end of request's uri
+     */
+    private $parameters;
+    /**
+     * temporary name with remainig header tags
+     */
+    private $others;
 
-    public function __construct(){
-        $this->parseRequest();
+    public function __construct(Response &$response) {
+        $this->parseRequest($response);
     }
 
     //only get methods exposed outside the class
 
-    public function getMethod(){
+    public function getMethod( ) {
         return $this->method;
     }
 
-    public function getResource(){
+    public function getResource( ) {
         return $this->resource;
     }
 
-    public function getToken(){
+    public function getToken( ) {
         return $this->token;
     }
 
-    public function getResponseFormat(){
+    public function getResponseFormat( ) {
         return $this->responseFormat;
     }
 
-    public function getRequestFormat(){
+    public function getRequestFormat( ) {
         return $this->requestFormat;
     }
 
-    public function getFilters(){
+    public function getFilters( ) {
         return $this->filters;
     }
 
-    public function getParameters(){
+    public function getParameters( ) {
         return $this->parameters;
     }
 
-    public function getOthers(){
+    public function getOthers( ) {
         return $this->others;
     }
 
@@ -57,8 +82,8 @@ class Request {
      */
     private function extractElements(array &$list, array $element_key) {
         $values = [];
-        foreach($element_key as $key){
-            if(isset($list[$key])){
+        foreach($element_key as $key ) {
+            if( isset($list[$key]) ) {
                 array_push($values, $list[$key]);
                 unset($list[$key]);
             }
@@ -83,7 +108,7 @@ class Request {
         
         $body_parameters = json_decode($body_parameters,TRUE) ?: [];
         
-        if(!is_null($path_id)){
+        if( !is_null($path_id) ) {
             $body_parameters['id'] = $path_id;
         }
         
@@ -93,7 +118,7 @@ class Request {
     /**
      * parse request's info and passed parameters and sets Request properties
      */
-    private function parseRequest() {
+    private function parseRequest(Response &$response) {
         $headers = apache_request_headers();
         $request_uri = array_diff(explode('/', explode('?', str_replace(API_URL, '', $_SERVER['REQUEST_URI']), 2)[0]), ['', 'api']);
 
@@ -105,5 +130,11 @@ class Request {
         $this->filters = $this->extractElements($headers, ['X-Result', 'X-Total', 'X-From']);
         $this->parameters = $this->groupParameters(!empty($request_uri) ? end($request_uri) : null);
         $this->others = $headers;    //remaining header's elements
+
+        //don't like so much
+        $response->setFormat($this->responseFormat);
+        $response->setFilters($this->filters);
+        $response->setResource($this->resource);
+        $response->setMethod($this->method);
     }
 }

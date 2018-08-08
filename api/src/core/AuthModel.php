@@ -3,7 +3,7 @@ namespace Api\Core;
 
 abstract class AuthModel {
 
-    public function __construct(){ 
+    public function __construct() { 
         
     }
 
@@ -27,19 +27,10 @@ abstract class AuthModel {
      * @uses            getFromToken
      */
     protected static function canDoRequest(Request &$request) : bool {
-        $auth_data = explode(" ", $request->getToken());
-        
-        //authorizes only configured auth method
-        if($auth_data[0] !== ucfirst(AUTH_METHOD)){
-            return false;
-        }
-
-        //parse token using method defined by user
-        
-        $user = static::getFromToken($auth_data[1]);
-        if(isset($user)){
+        $user = static::getFromToken($request->getToken());
+        if( isset($user) ) {
             $permission = "{$request->getMethod()}_{$request->getResource()}";
-            return in_array($permission, json_decode($user[2]));
+            return in_array($permission, $user[2]);
         }
 
         return false;
@@ -50,7 +41,7 @@ abstract class AuthModel {
      * @param   string  $token          user token in request
      * @return  array                   user data inside token
      */
-    public static abstract function getFromToken(string &$token) : array;
+    public static abstract function getFromToken(string $token) : array;
 
     /**
      * create new Token

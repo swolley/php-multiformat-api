@@ -9,7 +9,7 @@ $line = "";
 
 //$argv[1] can contains class name if passed launching script with "php crateRoute.php"
 $handle = fopen ('php://stdin','r');
-if(!isset($argv[1])){
+if( !isset($argv[1]) ) {
     echo 'Insert route name: ';
     $line = fgets($handle);
 } else {
@@ -33,7 +33,7 @@ $className = ucfirst($line);
 $filePath = __DIR__.'/../src/routes/';
 $fileName = "{$className}.php";
 
-if(!file_exists($filePath . $fileName) && !class_exists("Api\Routes\{$className}")){
+if( !file_exists($filePath . $fileName) && !class_exists("Api\Routes\{$className}") ) {
     $newClassContents = RouteFactory::defineClass($className/*, $implements*/);
 
     $newFile = fopen($filePath . $fileName, 'w');

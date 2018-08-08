@@ -104,7 +104,7 @@
         parseJson = async (response) => {
             var parsedResponse = await response.json();
             
-            if(parsedResponse.response === 'OK'){
+            if( parsedResponse.response === 'OK' ) {
                 $("#ajaxContents").html(
                     `<div>
                     <h1>${currentController.toUpperCase()}</h1>
@@ -156,7 +156,7 @@
                 })
             })
             	.then(response => {
-            		if(response.ok){
+            		if( response.ok ) {
             			return response;
             		}
 
@@ -179,14 +179,14 @@
                 })
             })
             	.then(response => {
-            		if(response.ok){
+            		if( response.ok ) {
             			return response;
             		}
             		
   					throw new Error('Network response was not ok.');
             	})
                 .then(response => {
-                    //if(response.response === 'OK'){
+                    //if( response.response === 'OK' ) {
                         table.row('.selected').id().remove().draw(false);
                     //}
                 })
@@ -198,7 +198,7 @@
         //#region AUTH
         var loginAction = $("#doLogin").on("click", () => {
             var regx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-            if($("#email").val().length > 0 && $("#password").val().length > 0 && regx.test($("#email").val())){
+            if( $("#email").val().length > 0 && $("#password").val().length > 0 && regx.test($("#email").val()) ) {
                 fetch(apiUrl.user, {
                         method: 'POST',
                         headers: new Headers({
@@ -209,7 +209,7 @@
                     })
                 })
                 	.then(response => {
-	            		if(response.ok){
+	            		if( response.ok ) {
 	            			return response
 	            		}
 	            		
@@ -245,7 +245,7 @@
                     })
                 })
                 	.then(response => {
-	            		if(response.ok){
+	            		if( response.ok ) {
 	            			return response
 	            		}
 	            		
@@ -272,7 +272,7 @@
                 })
             })
             	.then(response => {
-            		if(response.ok){
+            		if( response.ok ) {
             			return response
             		}
             		
@@ -280,7 +280,7 @@
             	})
                 .then(response => response.json())
                 .then(parsedResponse => {
-                    //if(parsedResponse.response === 'OK'){
+                    //if( parsedResponse.response === 'OK' ) {
                         menuLinks = "";
                         parsedResponse.data.array.forEach(item => {
                             menuLinks += 

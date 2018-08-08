@@ -2,33 +2,34 @@
 namespace Api\Routes;
 use Api\Core\RouteModel;
 use Api\Core\Request;
+use Api\Core\Response;
 use Api\Core\HttpStatusCode;
 use Api\Local\Auth;
 
 class Access extends RouteModel {
 
-    public function  __construct(){
+    public function  __construct( ) {
         parent::__construct();
     }
 
-    public function put(Request &$request) {
+    public function put(Request &$request, Response &$response) {
         throw new NotImplementedException('No method found', HttpStatusCode::METHOD_NOT_ALLOWED);
     } 
 
-    public function get(Request &$request) {
+    public function get(Request &$request, Response &$response) {
         throw new NotImplementedException('No method found', HttpStatusCode::METHOD_NOT_ALLOWED);
     }
 
-    public function post(Request &$request) {
+    public function post(Request &$request, Response &$response) {
         $params = $request->getParameters();
         
         //check if user exists
-        if(!isset($params['email'], $params['password'])){
-            throw new \BadMethodCallException('Missing parameters', HttpStatusCode::BAD_REQUEST);
+        if( !isset($params['email'], $params['password']) ) {
+            $response->error('Missing parameters', HttpStatusCode::BAD_REQUEST);
         }
 
-        if(strlen($params['email']) === 0 || !filter_var($params['email'], FILTER_VALIDATE_EMAIL) || strlen($params['password']) === 0){
-            throw new \InvalidArgumentException('Invalid parameters vaules', HttpStatusCode::BAD_REQUEST);
+        if( strlen($params['email']) === 0 || !filter_var($params['email'], FILTER_VALIDATE_EMAIL) || strlen($params['password']) === 0 ) {
+            $response->error('Invalid parameters vaules', HttpStatusCode::BAD_REQUEST);
         }
 
         $user = $this->db->procedure('GetUserByCredentials', [
@@ -36,8 +37,8 @@ class Access extends RouteModel {
             'hashedPassword' => hash('sha256', $params['password'])
         ]);
 
-        if(count($user) === 0){
-            return [];
+        if( count($user) === 0 ) {
+            $response->error('User not found', HttpStatusCode::UNAUTHORIZED);
         }
 
         $user = $user[0];
@@ -52,60 +53,60 @@ class Access extends RouteModel {
             'token' => $refresh_token
         ]);
 
-        return [
+        $response->prepare([
             'data' => $user
-        ]; 
+        ], HttpStatusCode::CREATED); 
     }
 
-    public function delete(Request &$request) {
+    public function delete(Request &$request, Response &$response) {
         $params = $request->getParameters();
         $token = $request->getToken();
         
-        if( !isset($params['id'], $token) ){
-            throw new \BadMethodCallException('Missing parameters', HttpStatusCode::BAD_REQUEST);
+        if( !isset($params['id'], $token) ) {
+           $response->error('Missing parameters', HttpStatusCode::BAD_REQUEST);
         }
 
         $user = Auth::getFromToken($token);
 
-        if($user['id'] == $params['id']){
-            $result = $this->db->procedure('DeleteUserTokens', [
-                'token' => $token
-            ]);
-            
-            if($result != 0) {
-                return [
-                    'data' => 'logged out'
-                ];
-            }
+        if( $user['id'] !== $params['id'] ) {
+            $response->error('Not authorized', HttpStatusCode::UNAUTHORIZED);
         }
-            
-        throw new \Exception('Not authorized', HttpStatusCode::UNAUTHORIZED);
+
+        $result = $this->db->procedure('DeleteUserTokens', [
+            'token' => $token
+        ]);
+        
+        $result != 0
+            ? $response->prepare(['data' => 'logged out'])
+            : $response->error();
     }
 
-    public function patch(Request &$request) {
+    public function patch(Request &$request, Response &$response) {
         $params = $request->getParameters();
         $token = $request->getToken();
         
-        if(!isset($params['id'], $token)){
-            throw new \BadMethodCallException('Missing parameters', HttpStatusCode::BAD_REQUEST);
+        if( !isset($params['id'], $token) ) {
+            $response->error('Missing parameters', HttpStatusCode::BAD_REQUEST);
         }
-        
+
         $auth = new Auth();
         $user_in_token = $auth::getFromToken($token);
         
-        if( $user_in_token['id'] === $params['id'] ){
-            $user_in_db = $this->db->procedure('GetUserByToken', [
-                'token' => $token
-            ]);
-            
-            if( count($user_in_db) > 0 && $user_in_db[0]['id'] === $user_in_token['id'] ) {
-                $auth->createAccessToken($user);  //sets header, no need to returns it
-                return [
-                    'data' => 'Acces token refreshed'
-                ];
-            }
+        if( $user_in_token[0] !== $params['id'] ) {
+            $response->error('Not authorized', HttpStatusCode::UNAUTHORIZED);
         }
 
-        throw new \Exception('Not authorized', HttpStatusCode::UNAUTHORIZED);
+        $user_in_db = $this->db->procedure('GetUserByToken', [
+            'token' => $token
+        ]);
+        
+        if( count($user_in_db) > 0 && $user_in_db[0]['id'] === $user_in_token[0] ) {
+            $auth->createAccessToken($user);  //sets header, no need to returns it
+            $response->prepare([
+                'data' => 'Acces token refreshed'
+            ]);
+        } else {
+            $response->error('No token found, please re-login', HttpStatusCode::UNAUTHORIZED);
+        }
     }
 }

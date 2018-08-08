@@ -23,7 +23,7 @@ final class Router{
         return self::$instance;
     }
 
-    private function __construct(/*$method, $request, $token, $format = 'application/json', $parameters = []*/){
+    private function __construct( ) {
     }
 
     /**
@@ -33,44 +33,34 @@ final class Router{
         try {
             //create new request and response every time?
             $this->response = new Response();
-            $this->request = new Request();
+            $this->request = new Request($this->response);
 
             //check user data and permission level
-            if( $this->needsAuthentication() ){
-                $authorized = Auth::authorizeRequest($this->request);
-                if( !$authorized ){
-                    throw new \Exception('User not authorized', HttpStatusCode::FORBIDDEN);
+            if(  $this->needsAuthentication()  ) {
+                if(  !Auth::authorizeRequest($this->request)  ) {
+                    $this->response->error('User not authorized', HttpStatusCode::FORBIDDEN);
                 }
             }
 
             //check request and action
-            if( $this->request->getResource() === null ){
-                throw new \Exception('No resource specified', HttpStatusCode::NOT_FOUND);
+            if(  $this->request->getResource() === null  ) {
+                $this->response->error('No resource specified', HttpStatusCode::NOT_FOUND);
             }
 
             $controller_full_name = 'Api\\Routes\\'.ucfirst($this->request->getResource());
             $controller = new $controller_full_name;
             $method = $this->request->getMethod();
 
-            if( !method_exists($controller, $method) ){
-                throw new \Exception('No action found', HttpStatusCode::NOT_FOUND);
+            if(  !method_exists($controller, $method)  ) {
+                $this->response->error('No action found', HttpStatusCode::NOT_FOUND);
             }
             
             //makes request and returns data
-            $this->response->setContent($controller->$method($this->request));
-
-            unset($controller_full_name);
-            unset($controller);
-            unset($method);
-
-            //make response
-            if($this->response->hasContent()){
-                exit( $this->response->ok($this->request));
-            } else {
-                throw new \Exception("Internal Server Error", HttpStatusCode::INTERNAL_SERVER_ERROR);
-            }
+            $controller->$method($this->request, $this->response);
         } catch (\Exception $ex) {
-            exit($this->response->error($this->request, $ex));
+            $this->response->prepare($ex->getMessage(), $ex->getCode());
+        } finally {
+            exit($this->response->send());
         }
     }
     

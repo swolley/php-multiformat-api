@@ -1,5 +1,5 @@
 <?php
-if(!file_exists('./config.php')){
+if( !file_exists('./config.php') ) {
     exit('No config file found.');   //Rename config.php.example into config.php and fill db infos
 }
 

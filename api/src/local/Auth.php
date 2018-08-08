@@ -8,19 +8,26 @@ use Firebase\JWT\BeforeValidException;
 
 final class Auth extends AuthModel {
 
-    public function __construct(){
+    public function __construct( ) {
         parent::__construct();
     }
 
-    public static function getFromToken(string &$jwt) : array {
+    public static function getFromToken(string $token) : array {
         try{
+            $auth_data = explode(" ", $token);
+        
+            //authorizes only configured auth type
+            if( $auth_data[0] !== ucfirst(AUTH_METHOD) ) {
+                throw new \InvalidArgumentException('Token type not handled', HttpStatusCode::BAD_REQUEST);
+            }
+
             $secret = base64_decode(KEY);
-            $user = (array)JWT::decode($jwt, $secret, array('HS256'));
+            $user = (array)JWT::decode($auth_data[1], $secret, array('HS256'));
             return $user['data'];
         } catch(ExpiredException $ex) {
-            throw new ExpiredException('Token expired', HttpStatusCode::UNHAUTORIZED);
+            throw new ExpiredException('Token expired', HttpStatusCode::UNAUTHORIZED);
         } catch (BeforeValidException $ex) {
-            throw new BeforeValidException($ex->getMessage(), HttpStatusCode::UNHAUTORIZED);
+            throw new BeforeValidException($ex->getMessage(), HttpStatusCode::UNAUTHORIZED);
         } catch(Exception $ex) {
             throw new \BadMethodCallException('Missing parameters', HttpStatusCode::BAD_REQUEST);
         }
@@ -41,7 +48,7 @@ final class Auth extends AuthModel {
             ]
         ];
 
-        if($lifeTime !== 0){
+        if( $lifeTime !== 0 ) {
             //is access token needs expire date
             $data['exp'] = $iat + $lifeTime;
         }
