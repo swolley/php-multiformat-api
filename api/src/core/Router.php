@@ -1,9 +1,7 @@
 <?php
 namespace Api\Core;
-//use Api\Routes;
 use Api\Core\HttpStatusCode;
 use Api\Local\Auth;
-//use \ReflectionClass;
 
 final class Router{
     private static $instance;
@@ -35,19 +33,20 @@ final class Router{
             $this->response = new Response();
             $this->request = new Request($this->response);
 
+			$resource = $this->request->getResource();
             //check user data and permission level
-            if(  $this->needsAuthentication()  ) {
-                if(  !Auth::authorizeRequest($this->request)  ) {
+            if(  $this->needsAuthentication($resource) && !Auth::authorizeRequest($this->request) ) {
+                //if(  !Auth::authorizeRequest($this->request)  ) {
                     $this->response->error('User not authorized', HttpStatusCode::FORBIDDEN);
-                }
+                //}
             }
 
             //check request and action
-            if(  $this->request->getResource() === null  ) {
+            if(  $resource === null  ) {
                 $this->response->error('No resource specified', HttpStatusCode::NOT_FOUND);
             }
 
-            $controller_full_name = 'Api\\Routes\\'.ucfirst($this->request->getResource());
+            $controller_full_name = 'Api\\Routes\\'.ucfirst($resource);
             $controller = new $controller_full_name;
             $method = $this->request->getMethod();
 
@@ -66,10 +65,11 @@ final class Router{
     
     /**
      * check from excluded requests in main config to understand if request neeeds to be authenticated 
+	 * @param	string	$resource	resource name
      */
-    private function needsAuthentication() : bool {
+    private function needsAuthentication(&$resource) : bool {
         global $exclude_from_auth;    //declared in config.php file
-        $resource = $this->request->getResource();
+        //$resource = $this->request->getResource();
         return !(in_array($resource, array_keys($exclude_from_auth)) && in_array($this->request->getMethod(), array_keys($exclude_from_auth[$resource])));
     }
 }

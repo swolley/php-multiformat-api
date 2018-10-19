@@ -5,7 +5,7 @@ use Api\Core\Request;
 use Api\Core\Response;
 use Api\Core\HttpStatusCode;
 
-class Frontend extends RouteModel {
+final class Frontend extends RouteModel {
     public function  __construct( ) {
         parent::__construct();
     }

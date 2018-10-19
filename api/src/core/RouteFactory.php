@@ -24,17 +24,17 @@ class RouteFactory {
         $definition .= 'use Api\Core\HttpStatusCode;' . PHP_EOL . PHP_EOL;
 
         //starts defining class
-        $definition .= "class {$name} extends {$extends->name}" . /*(!is_null($implements) ?:"") .*/' {' . PHP_EOL . PHP_EOL;
+        $definition .= "final class {$name} extends {$extends->name}" . /*(!is_null($implements) ?:"") .*/' {' . PHP_EOL . PHP_EOL;
         
             //constructor
             $definition .= static::defineConstructor($extends);
         
             //abstract methods
-            $definition .= static::defineDepencenceMethods($extends, ReflectionMethod::IS_ABSTRACT);
+            $definition .= static::defineDependentMethods($extends, ReflectionMethod::IS_ABSTRACT);
 
             //interface methods
             /*if( !is_null($implements)) {
-                $definition .= static::defineDepencenceMethods($implements);
+                $definition .= static::defineDependentMethods($implements);
             }*/
     
         $definition .= '}' . PHP_EOL;
@@ -61,7 +61,7 @@ class RouteFactory {
      * @param   integer             $dependence_modifier defines if implementing abstract class or not
      * @return  string                                  stringified php code of parent methods
      **/
-    private static function defineDepencenceMethods(ReflectionClass &$inherited_class, int $dependence_modifier = 0) :string {
+    private static function defineDependentMethods(ReflectionClass &$inherited_class, int $dependence_modifier = 0) :string {
         return array_reduce(
             $dependence_modifier === ReflectionMethod::IS_ABSTRACT ? 
                 $inherited_class->getMethods(ReflectionMethod::IS_ABSTRACT) : 

@@ -5,7 +5,9 @@ use Api\Core\Request;
 use Api\Core\Response;
 use Api\Core\HttpStatusCode;
 
-class Product extends RouteModel{
+final class Product extends RouteModel{
+	use PrimaryReader { getPrimaryName as private; }
+
     public function  __construct( ) {
         parent::__construct();
     }
@@ -26,7 +28,7 @@ class Product extends RouteModel{
         : $this->db->procedure('GetAllProducts');
         
         $response->prepare([
-            'rowId' => 'id',    //TODO: don't like so much this solution to responde primary key
+            'rowId' => $this->getPrimaryName(),
             'data' => isset($params['id']) && count($result) === 1
             ? $result[0]
             : $result
@@ -49,5 +51,5 @@ class Product extends RouteModel{
         
     public function patch(Request &$request, Response &$response) {
         throw new NotImplementedException('No method found', HttpStatusCode::METHOD_NOT_ALLOWED);
-    }
+	}
 }

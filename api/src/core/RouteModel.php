@@ -13,9 +13,9 @@ abstract class RouteModel implements ICrudable {
         $this->db = new Database();
     }
 
-    public static function getRoutes() {
+    protected static function getRoutes() {
         return array_diff(scandir(ROUTES), ['.', '..']);
-    }
+	}
 
     public abstract function get(Request &$request, Response &$response);
     public abstract function post(Request &$request, Response &$response);

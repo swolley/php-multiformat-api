@@ -5,7 +5,8 @@ use Api\Core\Request;
 use Api\Core\Response;
 use Api\Core\HttpStatusCode;
 
-class User extends RouteModel {
+final class User extends RouteModel {
+	use PrimaryReader { getPrimaryName as private; }
 
     public function  __construct( ) {
         parent::__construct();
@@ -16,14 +17,14 @@ class User extends RouteModel {
     } 
 
     public function get(Request &$request, Response &$response) {
-        $params = $request->getParameters();
+		$params = $request->getParameters();
         
         $result = isset($params['id'])
             ? $this->db->procedure('GetUser', ['id' => $params['id']])
             : $this->db->procedure('GetAllUsers');
 
         $response->prepare([
-            'rowId' => 'id',    //TODO: don't like so much this solution to responde primary key
+            'rowId' => $this->getPrimaryName(),
             'data' => isset($params['id']) && count($result) === 1
                 ? $result[0]
                 : $result

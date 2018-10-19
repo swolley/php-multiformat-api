@@ -6,7 +6,7 @@ use Api\Core\Response;
 use Api\Core\HttpStatusCode;
 use Api\Local\Auth;
 
-class Access extends RouteModel {
+final class Access extends RouteModel {
 
     public function  __construct( ) {
         parent::__construct();
@@ -20,6 +20,7 @@ class Access extends RouteModel {
         throw new NotImplementedException('No method found', HttpStatusCode::METHOD_NOT_ALLOWED);
     }
 
+	// login
     public function post(Request &$request, Response &$response) {
         $params = $request->getParameters();
         
@@ -29,7 +30,7 @@ class Access extends RouteModel {
         }
 
         if( strlen($params['email']) === 0 || !filter_var($params['email'], FILTER_VALIDATE_EMAIL) || strlen($params['password']) === 0 ) {
-            $response->error('Invalid parameters vaules', HttpStatusCode::BAD_REQUEST);
+            $response->error('Invalid parameters values', HttpStatusCode::BAD_REQUEST);
         }
 
         $user = $this->db->procedure('GetUserByCredentials', [
@@ -58,6 +59,7 @@ class Access extends RouteModel {
         ], HttpStatusCode::CREATED); 
     }
 
+	//logout
     public function delete(Request &$request, Response &$response) {
         $params = $request->getParameters();
         $token = $request->getToken();
@@ -81,6 +83,7 @@ class Access extends RouteModel {
             : $response->error();
     }
 
+	// refresh token
     public function patch(Request &$request, Response &$response) {
         $params = $request->getParameters();
         $token = $request->getToken();
