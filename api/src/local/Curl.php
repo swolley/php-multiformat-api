@@ -1,22 +1,5 @@
 <?php
-namespace Libs;
-
-/*
-$fields = [
-    "caption" => string,
-    "priority" => integer,
-    "time" => dateTime,
-    "author" => string,
-    "idnews" => integer,
-    "category" => string,
-    "headline" => string,
-    "text" => string
-];
-
-$pathNames = [
-    strings
-];
-*/
+namespace Api\Local;
 
 class Curl {
     /**

@@ -1,23 +1,5 @@
 <?php
-namespace Libs;
-
-use Libs\Curl;
-/*
-$fields = [
-    "caption" => string,
-    "priority" => integer,
-    "time" => dateTime,
-    "author" => string,
-    "idnews" => integer,
-    "category" => string,
-    "headline" => string,
-    "text" => string
-];
-
-$pathNames = [
-    strings
-];
-*/
+namespace Api\Local;
 
 class CurlExtended extends Curl {
     /** 
