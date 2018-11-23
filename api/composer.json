@@ -16,7 +16,6 @@
         "psr-4": {
             "Api\\": "/",
             "Api\\Scripts\\": "scripts/",
-            "Api\\Tests\\": "tests/",
             "Api\\Core\\": "src/core/",
             "Api\\Local\\": "src/local/",
             "Api\\Routes\\": "src/routes/"

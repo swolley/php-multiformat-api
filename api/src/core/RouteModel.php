@@ -10,7 +10,7 @@ abstract class RouteModel implements ICrudable {
      * assign to $db a new instance of Database class
      */
     public function __construct( ) {
-        $this->db = new Database();
+        $this->db = new PDOExtended();
     }
 
     protected static function getRoutes() {

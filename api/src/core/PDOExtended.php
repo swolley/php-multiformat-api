@@ -3,7 +3,7 @@ namespace Api\Core;
 
 use \PDO;
 
-class Database extends PDO
+class PDOExtended extends PDO
 {
     /**
      * opens connection with db dureing object creation and set attributes depending on main configurations
